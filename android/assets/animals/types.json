@@ -1,0 +1,14 @@
+{
+  "auroch_male": {
+    "sizeX": 10,
+    "sizeY": 17
+  },
+  "auroch_female": {
+    "sizeX": 10,
+    "sizeY": 17
+  },
+  "calf": {
+    "sizeX": 8,
+    "sizeY": 13
+  }
+}

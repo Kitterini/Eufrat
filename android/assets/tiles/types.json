@@ -1,0 +1,52 @@
+{
+    "meadow":{
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "walkable": 100
+    },
+    "waters": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "walkable": 0
+    },
+   "fertile": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+     "walkable": 100
+    },
+   "coast": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+     "walkable": 0
+    },
+    "copper_full": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "walkable": 80
+    },
+    "copper_half": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "walkable": 80
+    },
+    "copper_empty": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "walkable": 100
+    },
+    "meadforest_full": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "walkable": 60
+    },
+    "ferforest_full": {
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "walkable": 60
+    },
+    "border": {
+      "scaleX": 1,
+      "scaleY": 1,
+      "walkable": 0
+    }
+}
