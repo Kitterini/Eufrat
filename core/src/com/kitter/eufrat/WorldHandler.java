@@ -46,7 +46,7 @@ public class WorldHandler {
         screenYmin = 0;
         screenXmax = 0;
         screenYmax = 0;
-        rand= new Random(SEED);
+        rand = new Random(SEED);
         worldTiles = new Tile[GameScreen.MAP_SIZE][GameScreen.MAP_SIZE];
         animalsHighlighted = new ArrayList<Animal>();
         animals = new ArrayList<Animal>();
@@ -57,9 +57,9 @@ public class WorldHandler {
             tempAnimalPos.add(new ArrayList<Animal>());
         }
         backg = new Sprite(new Texture("background.png"));
-        backg.setSize(Eufrat.PPM * GameScreen.MAP_SIZE * 1.5f, Eufrat.PPM * GameScreen.MAP_SIZE * 1.5f);
-        backg.setPosition(Eufrat.PPM * -GameScreen.MAP_SIZE /4, Eufrat.PPM * -GameScreen.MAP_SIZE /4);
-        sortAnimals();
+        backg.setSize(Potamos.PPM * GameScreen.MAP_SIZE * 1.5f, Potamos.PPM * GameScreen.MAP_SIZE * 1.5f);
+        backg.setPosition(Potamos.PPM * -GameScreen.MAP_SIZE /4, Potamos.PPM * -GameScreen.MAP_SIZE /4);
+        handleAnimals();
         tileAnims = TileAnims.getInstance();
         animalAnims = AnimalAnims.getInstance();
         animalsToSpawn = new LinkedBlockingQueue<AnimalDef>();
@@ -102,38 +102,59 @@ public class WorldHandler {
         }
     }
 
-    public void sortAnimals(){
+    public void handleAnimals(){
         // if any speed issues come up, find less consuming solution
-        //Gdx.app.log("ANIMAL", "CHUJ");
         for(int i=0; i< GameScreen.MAP_SIZE;i++){
             tempAnimalPos.get(i).clear();
         }
         for(int i = 0; i< animals.size(); i++){
+            // auroch section
             if(animals.get(i).getClass()==Auroch.class){
-                if(animals.get(i).age+ Eufrat.AUROCH_ADOLECENCE_TIME<WorldHandler.getInstance().stateTime &&
-                animals.get(i).sex == Eufrat.Sex.CHILD){
-                growUp((Auroch) animals.get(i));
+                if(animals.get(i).age+ Potamos.AUROCH_ADOLECENCE_TIME<WorldHandler.getInstance().stateTime &&
+                   animals.get(i).sex == Potamos.Sex.CHILD){
+                    growUp((Auroch) animals.get(i));
                 }
-                if(animals.get(i).age+ Eufrat.AUROCH_LIFE_TIME<WorldHandler.getInstance().stateTime){
+                if(animals.get(i).age + Potamos.AUROCH_LIFE_TIME<WorldHandler.getInstance().stateTime){
+                    Gdx.app.log("DEATH","AGE");
                     animalDie(i);
                     i++;
                 }
             }
-            if(i< animals.size()) {
-                tempAnimalPos.get((int) (animals.get(i).getY() / Eufrat.PPM)).add((Auroch) animals.get(i));
+            if(animals.get(i).hunger>100f){
+                Gdx.app.log("DEATH","HUNGER");
+                animalDie(i);
+                i++;
+            }
+            else {
+                animals.get(i).hunger+=0.05;
+            }
+            if(i < animals.size()) {
+                tempAnimalPos.get((int) (animals.get(i).getY() / Potamos.PPM)).add(animals.get(i));
             }
         }
     }
 
-    public void animalDie(int i){
+
+    public static void handleSpawningAnimals(){
+        if(!animalsToSpawn.isEmpty()){
+            Gdx.app.log("Spawn", "spawning");
+            AnimalDef adef = animalsToSpawn.poll();
+            if(adef.type == Auroch.class){
+                WorldHandler.getInstance().addAuroch(adef.position.x, adef.position.y, adef.sex);
+            }
+        }
+    }
+
+    public static void animalDie(int i){
         GameScreen.getWorld().destroyBody(animals.get(i).b2body);
+        animals.get(i).dispose();
+        animals.get(i).threadStop();
         animals.remove(i);
-        //animalThreads.get(i).interrupt();
         animalThreads.remove(i);
     }
 
     public void growUp(Auroch a){
-        a.growUp(Eufrat.AUROCH_BIT);
+        a.growUp(Potamos.AUROCH_BIT);
     }
 
     public void setVisibility(Vector3 pos){
@@ -143,25 +164,25 @@ public class WorldHandler {
         // prev need to be cleaned
             float zoom = GameScreen.getGameCam().zoom;
              if ((pos.x - GameScreen.getGameCam().viewportWidth*zoom/2)  > 0) {
-                 screenXmin = (int) ((pos.x - GameScreen.getGameCam().viewportWidth*zoom/2) / Eufrat.PPM-1);
+                 screenXmin = (int) ((pos.x - GameScreen.getGameCam().viewportWidth*zoom/2) / Potamos.PPM-1);
              }
              else{
                  screenXmin = 0;
              }
-             if (((pos.x + GameScreen.getGameCam().viewportWidth*zoom/2) / Eufrat.PPM) < GameScreen.MAP_SIZE ) {
-                 screenXmax = (int) ((pos.x+ GameScreen.getGameCam().viewportWidth*zoom/2 ) / Eufrat.PPM);
+             if (((pos.x + GameScreen.getGameCam().viewportWidth*zoom/2) / Potamos.PPM) < GameScreen.MAP_SIZE ) {
+                 screenXmax = (int) ((pos.x+ GameScreen.getGameCam().viewportWidth*zoom/2 ) / Potamos.PPM);
              }
              else{
                  screenXmax = GameScreen.MAP_SIZE-1;
              }
              if ((pos.y - GameScreen.getGameCam().viewportHeight*zoom/2)  > 0) {
-                 screenYmin = (int) ((pos.y - GameScreen.getGameCam().viewportHeight*zoom/2) / Eufrat.PPM-1);
+                 screenYmin = (int) ((pos.y - GameScreen.getGameCam().viewportHeight*zoom/2) / Potamos.PPM-1);
              }
              else{
                  screenYmin = 0;
              }
-             if ( ((pos.y + GameScreen.getGameCam().viewportHeight*zoom/2) / Eufrat.PPM) < GameScreen.MAP_SIZE) {
-                 screenYmax = (int) ((pos.y + GameScreen.getGameCam().viewportHeight*zoom/2) / Eufrat.PPM);
+             if ( ((pos.y + GameScreen.getGameCam().viewportHeight*zoom/2) / Potamos.PPM) < GameScreen.MAP_SIZE) {
+                 screenYmax = (int) ((pos.y + GameScreen.getGameCam().viewportHeight*zoom/2) / Potamos.PPM);
              }
              else{
                  screenYmax = GameScreen.MAP_SIZE-1;
@@ -170,10 +191,10 @@ public class WorldHandler {
 
 
     public boolean withinScreen(float x, float y){
-        if(screenXmax* Eufrat.PPM>x &&
-            screenXmin* Eufrat.PPM<x &&
-            screenYmax* Eufrat.PPM>y &&
-            screenYmin* Eufrat.PPM<y){
+        if(screenXmax* Potamos.PPM>x &&
+            screenXmin* Potamos.PPM<x &&
+            screenYmax* Potamos.PPM>y &&
+            screenYmin* Potamos.PPM<y){
             return true;
         }
         else{
@@ -185,7 +206,7 @@ public class WorldHandler {
         //camPos = pos;
     }
 
-    public void addAuroch(float x, float y, Eufrat.Sex gender){
+    public void addAuroch(float x, float y, Potamos.Sex gender){
         animals.add(new Auroch(x, y, gender));
         animalThreads.add(new Thread(WorldHandler.animals.get(animals.size()-1)));
         animalThreads.get(animals.size()-1).start();

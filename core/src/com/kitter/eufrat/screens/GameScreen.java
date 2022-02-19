@@ -12,10 +12,11 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.kitter.eufrat.Eufrat;
-import com.kitter.eufrat.Sprites.Auroch;
+import com.kitter.eufrat.Potamos;
+import com.kitter.eufrat.Sprites.Animal;
 import com.kitter.eufrat.tools.*;
 import com.kitter.eufrat.WorldHandler;
 
@@ -25,8 +26,9 @@ public class GameScreen implements Screen {
     private float ratio;
     public static int MAP_SIZE;
     public static int ANIMAL_AMOUNT ;//= 1;
+    public static float VOLUME;
     private Hud hud;
-    private Eufrat game;
+    private Potamos game;
     private Box2DDebugRenderer b2dr;
 
     private static OrthographicCamera gameCam;
@@ -38,9 +40,9 @@ public class GameScreen implements Screen {
     private float sortAnimalsStateTime;
 
     // how about the stage
-    public GameScreen(Eufrat game, int seed, int size) {
+    public GameScreen(Potamos game, int seed, int size) {
         MAP_SIZE = size;
-        ANIMAL_AMOUNT = MAP_SIZE;
+        ANIMAL_AMOUNT = (int)(0.003 * MAP_SIZE*MAP_SIZE + 0.73 *MAP_SIZE - 6);
         ratio = (float)Gdx.graphics.getWidth()/(float)Gdx.graphics.getHeight();
         Gdx.app.log("RATIO", String.valueOf(ratio));
         WorldHandler.getInstance().setSeed(seed);
@@ -48,6 +50,7 @@ public class GameScreen implements Screen {
         Cursor cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
         Gdx.graphics.setCursor(cursor);
         this.game = game;
+        VOLUME = 0.15f / (float) (WorldHandler.getInstance().screenXmax - WorldHandler.getInstance().screenXmin);
         mouse = new MouseInputProcessor(){
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -85,7 +88,7 @@ public class GameScreen implements Screen {
         gameCam.position.set(gameCam.viewportWidth, gameCam.viewportHeight, 0);
         gameCam.update();
         // set camera to the middle of the world
-        gameCam.translate(Eufrat.PPM * MAP_SIZE /2, Eufrat.PPM* MAP_SIZE /2);
+        gameCam.translate(Potamos.PPM * MAP_SIZE /2, Potamos.PPM* MAP_SIZE /2);
         WorldHandler.getInstance().initWorld();
         WorldHandler.getInstance().setVisibility(gameCam.position);
         hud = new Hud(game);
@@ -98,31 +101,23 @@ public class GameScreen implements Screen {
     }
 
     public void update(float dt){
-        handleSpawningAnimals();
+        WorldHandler.handleSpawningAnimals();
         controller.update();
         gameCam.update();
         hud.update(dt);
     }
 
-    public void handleSpawningAnimals(){
-        if(!WorldHandler.animalsToSpawn.isEmpty()){
-            Gdx.app.log("Spawn", "spawning");
-            AnimalDef adef = WorldHandler.animalsToSpawn.poll();
-            if(adef.type == Auroch.class){
-                WorldHandler.getInstance().addAuroch(adef.position.x, adef.position.y, adef.sex);
-            }
-        }
-    }
+
 
     @Override
     public void render(float delta) {
         update(delta);
         handleInput(delta);
         if(WorldHandler.getInstance().stateTime > sortAnimalsStateTime + 0.2){
-            WorldHandler.getInstance().sortAnimals();
+            WorldHandler.getInstance().handleAnimals();
             sortAnimalsStateTime = WorldHandler.getInstance().stateTime;
+            WorldHandler.getInstance().setVisibility(gameCam.position);
         }
-
         world.step(1/60f, 2,2);
         Gdx.gl.glClearColor(0,0,0,0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -133,18 +128,20 @@ public class GameScreen implements Screen {
         // set batch to draw what the Hud camera sees
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
-        if(Eufrat.debug_mode.equals("Debug on")) {
+        if(Potamos.debug_mode.equals("Debug on")) {
             b2dr.render(world, gameCam.combined);
         }
 
     }
     public void handleInput(float dt) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+            setupFullScreen(Potamos.screen_mode);
+        }
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             moveY(1f);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.S )){
             moveY(-1f);
-
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D) ){
             moveX(1f);
@@ -153,14 +150,22 @@ public class GameScreen implements Screen {
         if(Gdx.input.isKeyPressed(Input.Keys.A) ){
             moveX(-1f);
         }
-
         if(Gdx.input.isKeyPressed(Input.Keys.Q) || mouse.getScroll() == -1){
             zoom(-1);
+
         }
         if(Gdx.input.isKeyPressed(Input.Keys.E) || mouse.getScroll() == 1){
             //if(worldScale < 40) {
                 zoom(1);
+
             //}
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.F) || mouse.getScroll() == 1){
+            String foods = "";
+            for(Animal a : WorldHandler.animals){
+                foods = foods + a.hunger + " ";
+            }
+            Gdx.app.log("HUNGERS",foods);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
@@ -168,29 +173,41 @@ public class GameScreen implements Screen {
         }
 
     }
-
+    void setupFullScreen(String mode){
+        if(mode.equals("Fullscreen on")) {
+            Gdx.graphics.setWindowedMode(1280, 720);
+            Potamos.screen_mode = "Fullscreen off";
+            Gdx.input.setInputProcessor(imultiplexer);
+        }
+        else if(mode.equals("Fullscreen off")){
+            // set resolution to HD ready (1280 x 720) and set full-screen to true
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            Potamos.screen_mode = "Fullscreen on";
+            Gdx.input.setInputProcessor(imultiplexer);
+        }
+    }
     private void moveX(float direction){
-        if(gameCam.position.x >= 0 && gameCam.position.x <= Eufrat.PPM * MAP_SIZE) {
+        if(gameCam.position.x >= 0 && gameCam.position.x <= Potamos.PPM * MAP_SIZE) {
             gameCam.translate(direction * gameCam.zoom*20*ratio,0);
         }
         else if(gameCam.position.x < 0){
             gameCam.position.x=0;
         }
-        else if(gameCam.position.x > Eufrat.PPM * MAP_SIZE){
-            gameCam.position.x = Eufrat.PPM * MAP_SIZE;
+        else if(gameCam.position.x > Potamos.PPM * MAP_SIZE){
+            gameCam.position.x = Potamos.PPM * MAP_SIZE;
         }
         WorldHandler.getInstance().setVisibility(gameCam.position);
     }
 
     private void moveY(float direction){
-        if(gameCam.position.y >= 0 && gameCam.position.y <= Eufrat.PPM* MAP_SIZE) {
+        if(gameCam.position.y >= 0 && gameCam.position.y <= Potamos.PPM* MAP_SIZE) {
             gameCam.translate(0, direction * gameCam.zoom*20);
         }
         else if(gameCam.position.y < 0){
             gameCam.position.y=0;
         }
-        else if(gameCam.position.y > Eufrat.PPM * MAP_SIZE){
-            gameCam.position.y = Eufrat.PPM* MAP_SIZE;
+        else if(gameCam.position.y > Potamos.PPM * MAP_SIZE){
+            gameCam.position.y = Potamos.PPM* MAP_SIZE;
         }
         WorldHandler.getInstance().setVisibility(gameCam.position);
     }
@@ -204,6 +221,7 @@ public class GameScreen implements Screen {
         }
         WorldHandler.getInstance().setVisibility(gameCam.position);
         mouse.stopScroll();
+        VOLUME = 0.15f / (float) (WorldHandler.getInstance().screenXmax - WorldHandler.getInstance().screenXmin);
     }
 
     @Override

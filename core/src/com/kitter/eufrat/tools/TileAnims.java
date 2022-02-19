@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -32,9 +33,19 @@ public class TileAnims {
         for (Object t : landTypes.keySet()) {
             ArrayList<String> tileNames;
             tileNames = listFilesForFolder(t.toString());
+            Gdx.app.log("AA", String.valueOf(tileNames));
             //identify number of different sprites
             AnimKey temp = new AnimKey();
             JSONObject sizes = (JSONObject) landTypes.get(t);
+
+            if(sizes.get("depletion")!=null){
+                if(sizes.get("depletion").getClass()==JSONArray.class) {
+                    JSONArray depletionArray = (JSONArray) sizes.get("depletion");
+                    for (Object o : depletionArray) {
+                        temp.depletionList.add(prepareAdditionalAnim(t.toString(),(String) o));
+                    }
+                }
+            }
             temp.sizeX = Float.parseFloat(String.valueOf(sizes.get("scaleX")));
             temp.sizeY =  Float.parseFloat(String.valueOf(sizes.get("scaleY")));
 
@@ -64,6 +75,23 @@ public class TileAnims {
             return new Animation<TextureRegion>(0.15f, frames);
         }
     }
+    private Animation prepareAdditionalAnim(String type,String addition){
+        Texture spritemap = new Texture("tiles/" + type + "_" + addition + ".png");
+        int anim_num = spritemap.getWidth() / spritemap.getHeight();
+
+        TextureRegion[][] tmp = TextureRegion.split(spritemap,
+                spritemap.getWidth() / anim_num,
+                spritemap.getHeight());
+        TextureRegion[] frames = new TextureRegion[spritemap.getWidth() / spritemap.getHeight()];
+        if (anim_num >= 0) {
+            System.arraycopy(tmp[0], 0, frames, 0, anim_num);
+        }
+        if (type.equals("coast")) {
+            return new Animation<TextureRegion>(0.3f, frames);
+        } else {
+            return new Animation<TextureRegion>(0.15f, frames);
+        }
+    }
 
     public ArrayList<String> listFilesForFolder(String type) {
         ArrayList<String> tileNames = new ArrayList<>();
@@ -71,14 +99,13 @@ public class TileAnims {
 
         for (FileHandle fileEntry : folder.list()) {
             if (!fileEntry.isDirectory()) {
-                if (fileEntry.name().contains(type)) {
+                if (fileEntry.name().contains(type) && !fileEntry.name().contains("_")) {
                     tileNames.add(fileEntry.name());
                 }
             }
         }
         return tileNames;
     }
-
 
     public static TileAnims getInstance() {
         if (single_instance == null) {

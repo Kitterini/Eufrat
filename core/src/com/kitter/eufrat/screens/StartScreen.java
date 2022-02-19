@@ -21,7 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import com.kitter.eufrat.Eufrat;
+import com.kitter.eufrat.Potamos;
 
 
 public class StartScreen implements Screen {
@@ -30,10 +30,10 @@ public class StartScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
 
-    private Eufrat game;
+    private Potamos game;
     TextField seed;
     TextField size;
-    public StartScreen(Eufrat game) {
+    public StartScreen(Potamos game) {
         this.game = game;
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height,new OrthographicCamera());
         stage = new Stage(viewport, game.batch);
@@ -117,31 +117,17 @@ public class StartScreen implements Screen {
                         setupSettingsMenu();
                         break;
                     case "Fullscreen on":
-                        Gdx.graphics.setWindowedMode(1280, 720);
-                        Eufrat.screen_mode = "Fullscreen off";
-                        dispose();
-                        viewport = new FitViewport(1280, 720,new OrthographicCamera());
-                        stage = new Stage(viewport, game.batch);
-                        Gdx.input.setInputProcessor(stage);
-                        setupSettingsMenu();
-                        break;
                     case "Fullscreen off":
-                        // set resolution to HD ready (1280 x 720) and set full-screen to true
-                        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-                        Eufrat.screen_mode = "Fullscreen on";
-                        dispose();
-                        viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height,new OrthographicCamera());
-                        stage = new Stage(viewport, game.batch);
-                        Gdx.input.setInputProcessor(stage);
+                        setupFullScreen(name);
                         setupSettingsMenu();
                         break;
                     case "Debug off":
-                        Eufrat.debug_mode = "Debug on";
+                        Potamos.debug_mode = "Debug on";
                         dispose();
                         setupSettingsMenu();
                         break;
                     case "Debug on":
-                        Eufrat.debug_mode = "Debug off";
+                        Potamos.debug_mode = "Debug off";
                         dispose();
                         setupSettingsMenu();
                         break;
@@ -173,9 +159,27 @@ public class StartScreen implements Screen {
             }
         });
     }
-
+    void setupFullScreen(String mode){
+        if(mode.equals("Fullscreen on")) {
+            Gdx.graphics.setWindowedMode(1280, 720);
+            Potamos.screen_mode = "Fullscreen off";
+            dispose();
+            viewport = new FitViewport(1280, 720, new OrthographicCamera());
+            stage = new Stage(viewport, game.batch);
+            Gdx.input.setInputProcessor(stage);
+        }
+        else if(mode.equals("Fullscreen off")){
+            // set resolution to HD ready (1280 x 720) and set full-screen to true
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            Potamos.screen_mode = "Fullscreen on";
+            dispose();
+            viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height,new OrthographicCamera());
+            stage = new Stage(viewport, game.batch);
+            Gdx.input.setInputProcessor(stage);
+        }
+    }
     void setupStartMenu(){
-        BitmapFont font15 = loadCustomFont(Eufrat.font);
+        BitmapFont font15 = loadCustomFont(Potamos.font);
 
         Label.LabelStyle font = new Label.LabelStyle(font15, Color.WHITE);
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
@@ -185,7 +189,7 @@ public class StartScreen implements Screen {
         table.center();
         table.setFillParent(true);
 //        Gdx.app.log("SAS",Kotas.class.getName().split("\\.")[0]);
-        String[] gameName = Eufrat.class.getName().split("\\.");
+        String[] gameName = Potamos.class.getName().split("\\.");
         Label titleLabel = new Label(gameName[gameName.length-1], font);
 
         TextButton playButton = new TextButton("New Game", btnStyle);
@@ -220,9 +224,9 @@ public class StartScreen implements Screen {
         TextButton backButton = new TextButton("Back", btnStyle);
         setupButton(backButton);
 
-        TextButton fullButton = new TextButton(Eufrat.screen_mode, btnStyle);
+        TextButton fullButton = new TextButton(Potamos.screen_mode, btnStyle);
         setupButton(fullButton);
-        TextButton debugButton = new TextButton(Eufrat.debug_mode, btnStyle);
+        TextButton debugButton = new TextButton(Potamos.debug_mode, btnStyle);
         setupButton(debugButton);
         Skin uiSkin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         uiSkin.getFont("default-font").getData().setScale(0.5f);
@@ -247,7 +251,7 @@ public class StartScreen implements Screen {
         //resChoice = selectBox.getSelected().toString();
     }
     void setupGameMenu() {
-        BitmapFont font15 = loadCustomFont(Eufrat.font);
+        BitmapFont font15 = loadCustomFont(Potamos.font);
 
         Label.LabelStyle font = new Label.LabelStyle(font15, Color.WHITE);
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
@@ -266,10 +270,10 @@ public class StartScreen implements Screen {
         TextButton playButton = new TextButton("Start", btnStyle);
         setupButton(playButton);
         Label seedLabel = new Label("Seed", font);
-        seed = new TextField(Eufrat.default_seed, uiSkin);
+        seed = new TextField(Potamos.default_seed, uiSkin);
         seed.setMaxLength(8);
         Label sizeLabel = new Label("Size", font);
-        size = new TextField(Eufrat.default_map_size, uiSkin);
+        size = new TextField(Potamos.default_map_size, uiSkin);
         size.setMaxLength(3);
         seed.setSize(1000,100);
         TextButton backButton = new TextButton("Back", btnStyle);

@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class AnimalAnims {
     public HashMap<String, AnimKey> animsMap = new HashMap<>();
     private static volatile AnimalAnims single_instance = null;
-    String[] behaviours = {"idle", "move"};
+    String[] behaviours = {"idle", "move", "eating"};
     String path = "animals/";
     private AnimalAnims()  {
 

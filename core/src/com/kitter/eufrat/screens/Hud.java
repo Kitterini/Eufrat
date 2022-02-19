@@ -17,7 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.kitter.eufrat.Eufrat;
+import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.WorldHandler;
 
 
@@ -28,12 +28,12 @@ public class Hud implements Disposable {
     Label FPSLabel;
     Label AurochLabel;
 
-    public Hud(Eufrat game) {
+    public Hud(Potamos game) {
 
         viewport = new FillViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, new OrthographicCamera());
         stage = new Stage(viewport, game.batch);
 
-        BitmapFont font15 = loadCustomFont(Eufrat.font);
+        BitmapFont font15 = loadCustomFont(Potamos.font);
 
         Table table = new Table();
         table.top();

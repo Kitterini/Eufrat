@@ -9,14 +9,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.kitter.eufrat.screens.StartScreen;
 
-public class Eufrat extends Game {
+public class Potamos extends Game {
 	public static final float PPM = 320/4f;
 	public static final short NOTHING_BIT = 0;
 	public static final short TILE_BIT = 1;
 	public static final short AUROCH_BIT = 2;
-	public enum Sex{ MALE, FEMALE, CHILD};
+	public enum Sex{MALE, FEMALE, CHILD};
 	public static final int AUROCH_ADOLECENCE_TIME = 120;
 	public static final int AUROCH_LIFE_TIME = 900;
+	public static final int AUROCH_MEAL = 25;
 	public static final String font = "Gothic.ttf";
 	public static String screen_mode = "Fullscreen on";
 	public static String debug_mode = "Debug off";
@@ -33,6 +34,7 @@ public class Eufrat extends Game {
 		manager = new AssetManager();
 		manager.load("audio/sounds/mooo.mp3", Sound.class);
 		manager.load("audio/sounds/mooo2.mp3", Sound.class);
+		manager.load("audio/sounds/nom-nom-nom.mp3", Sound.class);
 		manager.finishLoading();
 		if(screen_mode.equals("Fullscreen on")){
 			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());

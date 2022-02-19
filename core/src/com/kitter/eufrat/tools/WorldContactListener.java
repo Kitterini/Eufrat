@@ -3,7 +3,7 @@ package com.kitter.eufrat.tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.*;
-import com.kitter.eufrat.Eufrat;
+import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.Sprites.Animal;
 import com.kitter.eufrat.Sprites.Auroch;
 
@@ -14,12 +14,12 @@ public class WorldContactListener implements ContactListener {
         Fixture fixB = contact.getFixtureB();
         int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
         switch (cDef) {
-            case Eufrat.TILE_BIT | Eufrat.AUROCH_BIT:
+            case Potamos.TILE_BIT | Potamos.AUROCH_BIT:
                 //Gdx.app.log("CONTACT", "AUROCH-TILE CONTACT!");
                 break;
-            case Eufrat.AUROCH_BIT:
-                if(((Auroch)fixA.getUserData()).sex == Eufrat.Sex.MALE &&
-                    ((Auroch)fixB.getUserData()).sex == Eufrat.Sex.FEMALE ){
+            case Potamos.AUROCH_BIT:
+                if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.MALE &&
+                    ((Auroch)fixB.getUserData()).sex == Potamos.Sex.FEMALE ){
                     if (((Auroch) fixB.getUserData()).currentState != Animal.State.PREGNANT){
                         Gdx.app.log("CONTACT","SEX! ALL RIGHT!");
                         ((Auroch) fixB.getUserData()).setPregnant();
@@ -28,22 +28,22 @@ public class WorldContactListener implements ContactListener {
                         Gdx.app.log("CONTACT","ALREADY PREGGO!");
                     }
                 }
-                else if(((Auroch)fixA.getUserData()).sex == Eufrat.Sex.FEMALE &&
-                    ((Auroch)fixB.getUserData()).sex == Eufrat.Sex.MALE ){
+                else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.FEMALE &&
+                    ((Auroch)fixB.getUserData()).sex == Potamos.Sex.MALE ){
                     if (((Auroch) fixA.getUserData()).currentState != Animal.State.PREGNANT){
                         Gdx.app.log("CONTACT","SEX! ALL RIGHT!");
-                        ((Auroch) fixB.getUserData()).setPregnant();
+                        ((Auroch) fixA.getUserData()).setPregnant();
                     }
                     else{
                         Gdx.app.log("CONTACT","ALREADY PREGGO!");
                     }
                 }
-                else if(((Auroch)fixA.getUserData()).sex == Eufrat.Sex.MALE &&
-                        ((Auroch)fixB.getUserData()).sex == Eufrat.Sex.MALE) {
+                else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.MALE &&
+                        ((Auroch)fixB.getUserData()).sex == Potamos.Sex.MALE) {
                   //  Gdx.app.log("CONTACT", "GAY SEX! ");
                 }
-                else if(((Auroch)fixA.getUserData()).sex == Eufrat.Sex.FEMALE &&
-                        ((Auroch)fixB.getUserData()).sex == Eufrat.Sex.FEMALE){
+                else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.FEMALE &&
+                        ((Auroch)fixB.getUserData()).sex == Potamos.Sex.FEMALE){
                        // Gdx.app.log("CONTACT","LESBIAN SEX! ");
                 }
                 else{

@@ -1,7 +1,7 @@
 package com.kitter.eufrat.tools;
 
 import com.badlogic.gdx.math.Vector2;
-import com.kitter.eufrat.Eufrat;
+import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.Sprites.Tile;
 import com.kitter.eufrat.WorldHandler;
 import com.kitter.eufrat.screens.GameScreen;
@@ -18,12 +18,12 @@ public class WorldCreator {
         for (int i = 0; i < GameScreen.MAP_SIZE; i++) {
             for (int j = 0; j < GameScreen.MAP_SIZE; j++) {
                 if(rand.nextInt(100)==0) {
-                    WorldHandler.worldTiles[i][j] = new Tile("copper_full",
-                            new Vector2(i * Eufrat.PPM, j * Eufrat.PPM));
+                    WorldHandler.worldTiles[i][j] = new Tile("copper",
+                            new Vector2(i * Potamos.PPM, j * Potamos.PPM));
                 }
                 else{
                     WorldHandler.worldTiles[i][j] = new Tile("meadow",
-                            new Vector2(i * Eufrat.PPM, j * Eufrat.PPM));
+                            new Vector2(i * Potamos.PPM, j * Potamos.PPM));
                 }
             }
         }
@@ -123,16 +123,16 @@ public class WorldCreator {
                             tempX < GameScreen.MAP_SIZE &&
                             tempY >= 0 &&
                             tempX >= 0 &&
-                            !WorldHandler.worldTiles[tempX][tempY].type.equals("ferforest_full") &&
+                            !WorldHandler.worldTiles[tempX][tempY].type.equals("ferforest") &&
                             !WorldHandler.worldTiles[tempX][tempY].type.equals("fertile") &&
                             !WorldHandler.worldTiles[tempX][tempY].type.equals("waters") ){
-                        if(WorldHandler.worldTiles[tempX][tempY].type.equals("meadforest_full")){
-                            WorldHandler.worldTiles[tempX][tempY] = new Tile("ferforest_full",
-                                    new Vector2(tempX * Eufrat.PPM, tempY * Eufrat.PPM));
+                        if(WorldHandler.worldTiles[tempX][tempY].type.equals("meadforest")){
+                            WorldHandler.worldTiles[tempX][tempY] = new Tile("ferforest",
+                                    new Vector2(tempX * Potamos.PPM, tempY * Potamos.PPM));
                         }
                         else {
                             WorldHandler.worldTiles[tempX][tempY] = new Tile("fertile",
-                                    new Vector2(tempX * Eufrat.PPM, tempY * Eufrat.PPM));
+                                    new Vector2(tempX * Potamos.PPM, tempY * Potamos.PPM));
                         }
                     }
                 }
@@ -146,17 +146,17 @@ public class WorldCreator {
                                 tempX  < GameScreen.MAP_SIZE &&
                                 tempY>= 0 &&
                                 tempX >= 0 &&
-                                !WorldHandler.worldTiles[tempX][tempY].type.equals("ferforest_full") &&
+                                !WorldHandler.worldTiles[tempX][tempY].type.equals("ferforest") &&
                                 !WorldHandler.worldTiles[tempX][tempY].type.equals("fertile") &&
                                 !WorldHandler.worldTiles[tempX][tempY].type.equals("waters")) {
-                            if(WorldHandler.worldTiles[tempX][ tempY].type.equals("meadforest_full")){
-                                WorldHandler.worldTiles[tempX][ tempY] = new Tile("ferforest_full",
-                                        new Vector2(tempX * Eufrat.PPM, tempY * Eufrat.PPM));
+                            if(WorldHandler.worldTiles[tempX][ tempY].type.equals("meadforest")){
+                                WorldHandler.worldTiles[tempX][ tempY] = new Tile("ferforest",
+                                        new Vector2(tempX * Potamos.PPM, tempY * Potamos.PPM));
 
                             }
                             else {
                                 WorldHandler.worldTiles[(int) value.x + xaxis][(int) value.y + yaxis] = new Tile("fertile",
-                                        new Vector2(((int) value.x + xaxis) * Eufrat.PPM, ((int) value.y + yaxis) * Eufrat.PPM));
+                                        new Vector2(((int) value.x + xaxis) * Potamos.PPM, ((int) value.y + yaxis) * Potamos.PPM));
                             }
 
                         }
@@ -182,7 +182,7 @@ public class WorldCreator {
                             tempX >= 0 &&
                             !WorldHandler.worldTiles[tempX][tempY].type.equals("waters")){
                         WorldHandler.worldTiles[tempX][tempY] = new Tile("waters",
-                                new Vector2(tempX * Eufrat.PPM, tempY * Eufrat.PPM));
+                                new Vector2(tempX * Potamos.PPM, tempY * Potamos.PPM));
 
                     }
                 }
@@ -197,7 +197,7 @@ public class WorldCreator {
                                 tempY >= 0 &&
                                 tempX >= 0) {
                             WorldHandler.worldTiles[tempX + 1][tempY + 1] = new Tile("waters",
-                                    new Vector2((tempX + 1) * Eufrat.PPM, (tempY + 1) * Eufrat.PPM));
+                                    new Vector2((tempX + 1) * Potamos.PPM, (tempY + 1) * Potamos.PPM));
                         }
                     }
                 }
@@ -216,10 +216,10 @@ public class WorldCreator {
                 x = rand.nextInt(GameScreen.MAP_SIZE);
                 y = rand.nextInt(GameScreen.MAP_SIZE);
             }
-            Eufrat.Sex sexes[] = new Eufrat.Sex[2];
-            sexes[0]= Eufrat.Sex.MALE;
-            sexes[1]= Eufrat.Sex.FEMALE;
-            WorldHandler.getInstance().addAuroch(x * Eufrat.PPM, y* Eufrat.PPM, sexes[rand.nextInt(2)]);
+            Potamos.Sex sexes[] = new Potamos.Sex[2];
+            sexes[0]= Potamos.Sex.MALE;
+            sexes[1]= Potamos.Sex.FEMALE;
+            WorldHandler.getInstance().addAuroch(x * Potamos.PPM, y* Potamos.PPM, sexes[rand.nextInt(2)]);
         }
     }
 
@@ -234,34 +234,34 @@ public class WorldCreator {
                     if (prevwater != 0 && j - prevwater > 1 && (j - prevwater) < deltarange) {
                         int fertile_range = Math.min((j - prevwater), (deltarange - (j - prevwater)));
                         for (int k = prevwater + 1; k < prevwater+fertile_range ; k++) {
-                            if (!WorldHandler.worldTiles[i][k].type.equals("ferforest_full") &&
+                            if (!WorldHandler.worldTiles[i][k].type.equals("ferforest") &&
                                     !WorldHandler.worldTiles[i][k].type.equals("fertile")){
-                                if (WorldHandler.worldTiles[i][k].type.equals("meadforest_full")){
-                                    WorldHandler.worldTiles[i][k] = new Tile("ferforest_full",
-                                            new Vector2(i * Eufrat.PPM, k * Eufrat.PPM));
+                                if (WorldHandler.worldTiles[i][k].type.equals("meadforest")){
+                                    WorldHandler.worldTiles[i][k] = new Tile("ferforest",
+                                            new Vector2(i * Potamos.PPM, k * Potamos.PPM));
                                 }
                                 else{
                                     WorldHandler.worldTiles[i][k] = new Tile("fertile",
-                                            new Vector2(i * Eufrat.PPM, k * Eufrat.PPM));
+                                            new Vector2(i * Potamos.PPM, k * Potamos.PPM));
                                 }
                             }
                         }
                         WorldHandler.worldTiles[i][prevwater + 1] = new Tile("coast",
-                                new Vector2(i * Eufrat.PPM, (prevwater + 1) * Eufrat.PPM));
+                                new Vector2(i * Potamos.PPM, (prevwater + 1) * Potamos.PPM));
                         for (int k = j-1; k > j-fertile_range-1; k--) {
-                            if (!WorldHandler.worldTiles[i][k].type.equals("ferforest_full") &&
+                            if (!WorldHandler.worldTiles[i][k].type.equals("ferforest") &&
                                     !WorldHandler.worldTiles[i][k].type.equals("fertile")) {
-                                if (WorldHandler.worldTiles[i][k].type.equals("meadforest_full")) {
-                                    WorldHandler.worldTiles[i][k] = new Tile("ferforest_full",
-                                            new Vector2(i * Eufrat.PPM, k * Eufrat.PPM));
+                                if (WorldHandler.worldTiles[i][k].type.equals("meadforest")) {
+                                    WorldHandler.worldTiles[i][k] = new Tile("ferforest",
+                                            new Vector2(i * Potamos.PPM, k * Potamos.PPM));
                                 } else {
                                     WorldHandler.worldTiles[i][k] = new Tile("fertile",
-                                            new Vector2(i * Eufrat.PPM, k * Eufrat.PPM));
+                                            new Vector2(i * Potamos.PPM, k * Potamos.PPM));
                                 }
                             }
                         }
                         WorldHandler.worldTiles[i][j-1] = new Tile("coast",
-                                new Vector2(i * Eufrat.PPM, (j-1) * Eufrat.PPM));
+                                new Vector2(i * Potamos.PPM, (j-1) * Potamos.PPM));
                     }
                     prevwater = j;
                 }
@@ -274,33 +274,33 @@ public class WorldCreator {
                     if(prevwater!=0 && j - prevwater > 2 && (j - prevwater) < deltarange){
                         int fertile_range = Math.min((j - prevwater), (deltarange - (j - prevwater)));
                         for (int k = prevwater + 1; k < prevwater+fertile_range ; k++) {
-                            if (! WorldHandler.worldTiles[k][i].type.equals("ferforest_full") &&
+                            if (! WorldHandler.worldTiles[k][i].type.equals("ferforest") &&
                                     ! WorldHandler.worldTiles[k][i].type.equals("fertile")) {
-                                if ( WorldHandler.worldTiles[k][i].type.equals("meadforest_full")) {
-                                    WorldHandler.worldTiles[k][i] = new Tile("ferforest_full",
-                                            new Vector2(k * Eufrat.PPM, i * Eufrat.PPM));
+                                if ( WorldHandler.worldTiles[k][i].type.equals("meadforest")) {
+                                    WorldHandler.worldTiles[k][i] = new Tile("ferforest",
+                                            new Vector2(k * Potamos.PPM, i * Potamos.PPM));
                                 } else {
                                     WorldHandler.worldTiles[k][i] = new Tile("fertile",
-                                            new Vector2(k * Eufrat.PPM, i * Eufrat.PPM));
+                                            new Vector2(k * Potamos.PPM, i * Potamos.PPM));
                                 }
                             }
                         }
                         WorldHandler.worldTiles[prevwater + 1][i] = new Tile("coast",
-                                new Vector2((prevwater + 1) * Eufrat.PPM, i * Eufrat.PPM));
+                                new Vector2((prevwater + 1) * Potamos.PPM, i * Potamos.PPM));
                         for (int k = j-1; k > j-fertile_range; k--) {
-                            if (! WorldHandler.worldTiles[k][i].type.equals("ferforest_full") &&
+                            if (! WorldHandler.worldTiles[k][i].type.equals("ferforest") &&
                                     ! WorldHandler.worldTiles[k][i].type.equals("fertile")) {
-                                if ( WorldHandler.worldTiles[k][i].type.equals("meadforest_full")) {
-                                    WorldHandler.worldTiles[k][i] = new Tile("ferforest_full",
-                                            new Vector2(k * Eufrat.PPM, i * Eufrat.PPM));
+                                if ( WorldHandler.worldTiles[k][i].type.equals("meadforest")) {
+                                    WorldHandler.worldTiles[k][i] = new Tile("ferforest",
+                                            new Vector2(k * Potamos.PPM, i * Potamos.PPM));
                                 } else {
                                     WorldHandler.worldTiles[k][i] = new Tile("fertile",
-                                            new Vector2(k * Eufrat.PPM, i * Eufrat.PPM));
+                                            new Vector2(k * Potamos.PPM, i * Potamos.PPM));
                                 }
                             }
                         }
                         WorldHandler.worldTiles[j-1][i] = new Tile("coast",
-                                new Vector2((j-1) * Eufrat.PPM, i * Eufrat.PPM));
+                                new Vector2((j-1) * Potamos.PPM, i * Potamos.PPM));
                     }
                     prevwater = j;
                 }
@@ -321,9 +321,9 @@ public class WorldCreator {
             forestY = rand.nextInt(GameScreen.MAP_SIZE);
 
             for(int j = 0; j < forest_size; j++){
-                if(!WorldHandler.worldTiles[forestX][forestY].type.equals("meadforest_full")){
-                    WorldHandler.worldTiles[forestX][forestY] = new Tile("meadforest_full",
-                            new Vector2(forestX * Eufrat.PPM, forestY * Eufrat.PPM));
+                if(!WorldHandler.worldTiles[forestX][forestY].type.equals("meadforest")){
+                    WorldHandler.worldTiles[forestX][forestY] = new Tile("meadforest",
+                            new Vector2(forestX * Potamos.PPM, forestY * Potamos.PPM));
                 }
                 else{
                     if(forest_size<GameScreen.MAP_SIZE+100) {
@@ -358,14 +358,14 @@ public class WorldCreator {
     public static void createBorders(){
         for(int i = 0; i < GameScreen.MAP_SIZE; i++){
             WorldHandler.worldTiles[0][i]=new Tile("border",
-                    new Vector2(0, i * Eufrat.PPM));
+                    new Vector2(0, i * Potamos.PPM));
             WorldHandler.worldTiles[GameScreen.MAP_SIZE-1][i]=new Tile("border",
-                    new Vector2((GameScreen.MAP_SIZE-1) * Eufrat.PPM, i * Eufrat.PPM));
+                    new Vector2((GameScreen.MAP_SIZE-1) * Potamos.PPM, i * Potamos.PPM));
 
             WorldHandler.worldTiles[i][0]=new Tile("border",
-                    new Vector2(i * Eufrat.PPM,  0));
+                    new Vector2(i * Potamos.PPM,  0));
             WorldHandler.worldTiles[i][GameScreen.MAP_SIZE-1]=new Tile("border",
-                    new Vector2(i * Eufrat.PPM, (GameScreen.MAP_SIZE-1) * Eufrat.PPM));
+                    new Vector2(i * Potamos.PPM, (GameScreen.MAP_SIZE-1) * Potamos.PPM));
 
         }
         for(int i = 0; i < GameScreen.MAP_SIZE; i++) {
