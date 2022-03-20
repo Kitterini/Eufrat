@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class AnimalAnims {
     public HashMap<String, AnimKey> animsMap = new HashMap<>();
     private static volatile AnimalAnims single_instance = null;
-    String[] behaviours = {"idle", "move", "eating"};
+    String[] behaviours = {"idle", "move", "eating", "voice", "dead"};
     String path = "animals/";
     private AnimalAnims()  {
 
@@ -60,7 +60,7 @@ public class AnimalAnims {
         //if (anim_num >= 0) {
             System.arraycopy(tmp[0], 0, frames, 0, anim_num);
         //}
-        return new Animation<TextureRegion>(0.15f, frames);
+        return new Animation<TextureRegion>(0.10f, frames);
     }
 
 

@@ -120,13 +120,14 @@ public class WorldHandler {
                     i++;
                 }
             }
-            if(animals.get(i).hunger>100f){
-                Gdx.app.log("DEATH","HUNGER");
-                animalDie(i);
-                i++;
-            }
-            else {
-                animals.get(i).hunger+=0.05;
+            if(i < animals.size()) {
+                if (animals.get(i).hunger > 100f) {
+                    Gdx.app.log("DEATH", "HUNGER");
+                    animalDie(i);
+                    i++;
+                } else {
+                    animals.get(i).hunger += 0.05;
+                }
             }
             if(i < animals.size()) {
                 tempAnimalPos.get((int) (animals.get(i).getY() / Potamos.PPM)).add(animals.get(i));
@@ -134,18 +135,25 @@ public class WorldHandler {
         }
     }
 
-
+    public void adjustAnimalSpeed(float speed){
+        for(Animal animal : animals){
+            animal.b2body.setLinearVelocity(animal.b2body.getLinearVelocity().x * speed,
+                                            animal.b2body.getLinearVelocity().y * speed);
+        }
+    }
     public static void handleSpawningAnimals(){
         if(!animalsToSpawn.isEmpty()){
             Gdx.app.log("Spawn", "spawning");
             AnimalDef adef = animalsToSpawn.poll();
             if(adef.type == Auroch.class){
-                WorldHandler.getInstance().addAuroch(adef.position.x, adef.position.y, adef.sex);
+                WorldHandler.getInstance().addAuroch(adef.position.x, adef.position.y, adef.sex, adef.generation);
             }
         }
     }
 
     public static void animalDie(int i){
+        animals.get(i).currentState = Animal.State.DEAD;
+        animals.get(i).highlighted = false;
         GameScreen.getWorld().destroyBody(animals.get(i).b2body);
         animals.get(i).dispose();
         animals.get(i).threadStop();
@@ -206,8 +214,9 @@ public class WorldHandler {
         //camPos = pos;
     }
 
-    public void addAuroch(float x, float y, Potamos.Sex gender){
+    public void addAuroch(float x, float y, Potamos.Sex gender, int generation){
         animals.add(new Auroch(x, y, gender));
+        WorldHandler.animals.get(animals.size()-1).generation = generation;
         animalThreads.add(new Thread(WorldHandler.animals.get(animals.size()-1)));
         animalThreads.get(animals.size()-1).start();
     }

@@ -3,10 +3,7 @@ package com.kitter.eufrat.Sprites;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.kitter.eufrat.Potamos;
@@ -16,43 +13,53 @@ import com.kitter.eufrat.tools.AnimalAnims;
 import com.kitter.eufrat.tools.AnimalDef;
 import com.kitter.eufrat.tools.TextureUtils;
 
+import java.util.Locale;
 import java.util.Random;
 
 
+
 public abstract class Animal extends Sprite implements Runnable {
-    public enum State{IDLE, WALKING, SPEAK, COURT, PREGNANT, SEEKING_FOOD, EATING};
+    public enum State{IDLE, WALKING, SPEAK, COURT, PREGNANT, SEEKING_FOOD, EATING, DEAD};
     protected int PREGGO_TIME = 10;
     protected int EATING_TIME = 2;
+    protected int STATE_EXECUTION_TIME = 20;
 
     // percentages for randomized states
-    protected int IDLE_PERCENTAGE = 15;
+    protected int IDLE_PERCENTAGE = 5;
     protected int WALKING_PERCENTAGE = 15;
     protected int SPEAK_PERCENTAGE = 10;
-    protected int COURT_PERCENTAGE = 50;
+    protected int COURT_PERCENTAGE = 60;
     protected int FEED_PERCENTAGE = 10;
 
     // range for animals to look for food or mating
     protected int FEED_RANGE = 15;
     protected int COURT_RANGE = 10;
 
+    public int generation;
     public State currentState;
     public Potamos.Sex sex;
     public World world;
     public float hunger;
     public float age;
     public int meal;
+    public String name;
     protected boolean pregnant;
     protected float conceiveTime;
+    protected float stateStartTime;
     protected float eatingStart;
     public Animation<TextureRegion> idle;
     public Animation<TextureRegion> eating;
     public Animation<TextureRegion> walking;
+    public Animation<TextureRegion> voice;
+    public Animation<TextureRegion> dead;
     public Texture highlight;
+    public Texture menu_background;
     protected Vector2 speed;
     protected boolean stateExecuted;
     public boolean walkingRight;
 
-    protected boolean highlighted;
+    public boolean highlighted;
+    protected boolean menu;
     protected String speakFile;
     protected String speakFile2;
 
@@ -68,8 +75,8 @@ public abstract class Animal extends Sprite implements Runnable {
     private volatile boolean threadExit = false;
     public Animal( float x, float y, Potamos.Sex gender) {
         setPosition(x, y);
-        hunger = 0;
 
+        generation = 0;
         //lastSex = 0;
         this.world = GameScreen.getWorld();
         sex = gender;
@@ -79,8 +86,13 @@ public abstract class Animal extends Sprite implements Runnable {
         femaleFound = false;
         foodFound = false;
         highlighted = false;
+        menu = false;
         currentState = State.IDLE;
         rand = WorldHandler.getInstance().rand;
+        hunger = rand.nextInt(50);
+        String[] className = this.getClass().getName().split("\\.");
+        name = className[className.length-1];
+        stateStartTime = 0;
     }
 
     @Override
@@ -97,8 +109,48 @@ public abstract class Animal extends Sprite implements Runnable {
 
     public void drawHighlighted(Batch batch) {
         batch.draw(highlight,getX()-5,getY()-5,getWidth()+10,getHeight()+5);
+        if(menu){
+            batch.draw(menu_background,getX()-5,getY()-170,getWidth()*3,160);
+            GameScreen.getHud().hudfont.draw(batch, name, getX()+5,getY()-20);
+            GameScreen.getHud().hudfont.draw(batch,"state: " + currentState.toString().toLowerCase(Locale.ROOT),getX()+5,getY()-50);
+            drawHunger(batch);
+            drawAge(batch);
+            GameScreen.getHud().hudfont.draw(batch,"generation: "+ generation,getX()+5,getY()-140);
+        }
     }
+    private void drawHunger(Batch batch){
+        if(hunger<0) {
+            GameScreen.getHud().hudfont.draw(batch, "full", getX() + 5, getY() - 80);
+        }
+        else if(hunger<50){
+            GameScreen.getHud().hudfont.draw(batch, "not hungry", getX() + 5, getY() - 80);
+        }
+        else if(hunger<75){
+            GameScreen.getHud().hudfont.draw(batch, "hungry", getX() + 5, getY() - 80);
+        }
+        else{
+            GameScreen.getHud().hudfont.draw(batch, "starving", getX() + 5, getY() - 80);
+        }
+    }
+    private void drawAge(Batch batch){
+        float curAge = WorldHandler.getInstance().stateTime-age;
+        if(curAge<Potamos.AUROCH_LIFE_TIME/5f){
+            GameScreen.getHud().hudfont.draw(batch,"juvenile",getX()+5,getY()-110);
+        }
+        else if(curAge<Potamos.AUROCH_LIFE_TIME/5f*2){
+            GameScreen.getHud().hudfont.draw(batch,"young",getX()+5,getY()-110);
+        }
+        else if(curAge<Potamos.AUROCH_LIFE_TIME/5f*3){
+            GameScreen.getHud().hudfont.draw(batch,"middle-aged",getX()+5,getY()-110);
+        }
+        else if(curAge<Potamos.AUROCH_LIFE_TIME/5f*4){
+            GameScreen.getHud().hudfont.draw(batch,"old",getX()+5,getY()-110);
+        }
+        else{
+            GameScreen.getHud().hudfont.draw(batch,"venerable",getX()+5,getY()-110);
+        }
 
+    }
     public TextureRegion getFrame(float dt) {
 
         switch(currentState) {
@@ -111,8 +163,7 @@ public abstract class Animal extends Sprite implements Runnable {
                 reg = walking.getKeyFrame(WorldHandler.getInstance().stateTime, true);
                 break;
             case SPEAK:
-                reg = idle.getKeyFrame(dt);
-                // maybe some open face
+                reg = voice.getKeyFrame(dt);
                 break;
             case EATING:
                 reg = eating.getKeyFrame(dt);
@@ -127,12 +178,13 @@ public abstract class Animal extends Sprite implements Runnable {
         if(!stateExecuted) {
             switch (currentState) {
                 case IDLE:
-                    b2body.applyLinearImpulse(new Vector2(-b2body.getLinearVelocity().x, -b2body.getLinearVelocity().y), b2body.getWorldCenter(), true);
+                    b2body.setLinearVelocity(0, 0);
                     stateExecuted = true;
                     break;
                 case WALKING:
-                    speed = new Vector2((rand.nextFloat()-0.5f)*500f,(rand.nextFloat()-0.5f)*500f);
-                    b2body.applyLinearImpulse(new Vector2(speed.x, speed.y), b2body.getWorldCenter(), true);
+                    speed.x = (rand.nextFloat()-0.5f) * 400f;
+                    speed.y = (rand.nextFloat()-0.5f) * 400f;
+                    b2body.applyLinearImpulse(speed, b2body.getWorldCenter(), true);
                     stateExecuted = true;
                     break;
                 case COURT:
@@ -141,12 +193,12 @@ public abstract class Animal extends Sprite implements Runnable {
                         if (femaleFound) {
                             speed.x = (femalePos.x - b2body.getPosition().x) * 1000f;
                             speed.y = (femalePos.y - b2body.getPosition().y) * 1000f;
-
-                            b2body.applyLinearImpulse(new Vector2(speed.x, speed.y), b2body.getWorldCenter(), true);
+                            b2body.applyLinearImpulse(speed, b2body.getWorldCenter(), true);
                         }
                         else{
-                            speed = new Vector2((rand.nextFloat()-0.5f)*500f,(rand.nextFloat()-0.5f)*500f);
-                            b2body.applyLinearImpulse(new Vector2(speed.x, speed.y), b2body.getWorldCenter(), true);
+                            speed.x = (rand.nextFloat()-0.5f) * 500f;
+                            speed.y = (rand.nextFloat()-0.5f) * 500f;
+                            b2body.applyLinearImpulse(speed, b2body.getWorldCenter(), true);
                             stateExecuted = true;
                         }
 
@@ -154,8 +206,9 @@ public abstract class Animal extends Sprite implements Runnable {
                     else{
                         if(passed(femalePos)){
                             femaleFound = false;
-                            b2body.setLinearVelocity(0,0);
-                            //b2body.applyLinearImpulse(new Vector2(-speed.x, -speed.y), b2body.getWorldCenter(), true);
+                            speed.x = (rand.nextFloat()-0.5f) * 500f;
+                            speed.y = (rand.nextFloat()-0.5f) * 500f;
+                            b2body.applyLinearImpulse(speed, b2body.getWorldCenter(), true);
                             stateExecuted = true;
                         }
                     }
@@ -163,11 +216,10 @@ public abstract class Animal extends Sprite implements Runnable {
                 case SPEAK:
                     b2body.applyLinearImpulse(new Vector2(-b2body.getLinearVelocity().x, -b2body.getLinearVelocity().y), b2body.getWorldCenter(), true);
                     if (WorldHandler.getInstance().withinScreen(getX(), getY())) {
-                        int x = rand.nextInt(6000);
-
+                        int x = rand.nextInt(2000);
                         if (x < 1000) {
                             Potamos.manager.get(speakFile, Sound.class).play(GameScreen.VOLUME);
-                        } else if (x < 2000) {
+                        } else {
                             Potamos.manager.get(speakFile2, Sound.class).play(GameScreen.VOLUME);
                         }
                     }
@@ -175,11 +227,11 @@ public abstract class Animal extends Sprite implements Runnable {
                     break;
                 case PREGNANT:
                     if(conceiveTime < WorldHandler.getInstance().stateTime - PREGGO_TIME){
-                        Gdx.app.log("SIUR","PREGNANCY ENDED");
                         WorldHandler.animalsToSpawn.add(new AnimalDef(this.getClass(),
                                 new Vector2(getX(),
                                             getY()),
-                                Potamos.Sex.CHILD));
+                                Potamos.Sex.CHILD,
+                                generation+1));
                         currentState = State.IDLE;
                         pregnant = false;
                         stateExecuted = true;
@@ -189,14 +241,16 @@ public abstract class Animal extends Sprite implements Runnable {
                     if (!foodFound) {
                         scanForFood();
                         if (foodFound) {
-                            speed.x = (foodPos.x - b2body.getPosition().x) * 1000f;
-                            speed.y = (foodPos.y - b2body.getPosition().y) * 1000f;
+                            speed.x = (foodPos.x - b2body.getPosition().x) * 1000f ;
+                            speed.y = (foodPos.y - b2body.getPosition().y) * 1000f ;
                             b2body.applyLinearImpulse(new Vector2(speed.x, speed.y), b2body.getWorldCenter(), true);
                         }
                         else{
                             Gdx.app.log("FAMINE","DANGER NO FOOD IN RANGE");
-                            speed = new Vector2((rand.nextFloat()-0.5f)*500f,(rand.nextFloat()-0.5f)*500f);
-                            b2body.applyLinearImpulse(new Vector2(speed.x, speed.y), b2body.getWorldCenter(), true);
+                            speed.x = (rand.nextFloat()-0.5f) * 500f;
+                            speed.y = (rand.nextFloat()-0.5f) * 500f;
+                            b2body.applyLinearImpulse(speed, b2body.getWorldCenter(), true);
+
                             stateExecuted = true;
                         }
                     }
@@ -206,6 +260,7 @@ public abstract class Animal extends Sprite implements Runnable {
                             b2body.setLinearVelocity(0,0);
                             currentState = State.EATING;
                             eatingStart = WorldHandler.getInstance().stateTime;
+
                             if( rand.nextInt(10)==0) {
                                 Potamos.manager.get("audio/sounds/nom-nom-nom.mp3", Sound.class).play(GameScreen.VOLUME);
                             }
@@ -216,6 +271,7 @@ public abstract class Animal extends Sprite implements Runnable {
                     if(eatingStart < WorldHandler.getInstance().stateTime - EATING_TIME){
                         currentState = State.IDLE;
                         WorldHandler.worldTiles[(int)(foodPos.x/Potamos.PPM)][(int)(foodPos.y/Potamos.PPM)].decreaseCapacity();
+                        Gdx.app.log("FOOD",  "ACTUALLY EATING");
                         if(hunger>0) {
                             hunger -= meal;
                         }
@@ -237,22 +293,52 @@ public abstract class Animal extends Sprite implements Runnable {
             return true;
         }
         if (speed.x > 0 && speed.y > 0) {
-            return getX() > pos.x && getY() > pos.y;
+            return getX()+5 > pos.x && getY()+5 > pos.y;
         }
         if (speed.x < 0 && speed.y < 0) {
-            return getX() < pos.x && getY() < pos.y;
+            return getX()-5 < pos.x && getY()-5 < pos.y;
         }
         if (speed.x > 0 && speed.y < 0) {
-            return getX() > pos.x && getY() < pos.y;
+            return getX()+5 > pos.x && getY()-5 < pos.y;
         }
         if (speed.x < 0 && speed.y > 0) {
-            return getX() < pos.x && getY() > pos.y;
+            return getX()-5 < pos.x && getY()+5 > pos.y;
         }
         return false;
     }
-    protected abstract void scanForFood();
+    protected void scanForFood() {
+        Vector2 currentPos = new Vector2 ((int) (getX()/ Potamos.PPM),(int) (getY()/ Potamos.PPM));
+        int posX = (int)currentPos.x;
+        int posY = (int)currentPos.y;
+        boolean moveX = true;
+        int moveMax = 0;
+        int direction = 1;
+        while(posX < (currentPos.x + FEED_RANGE)) {
+            if(moveX) {
+                for(int i=0;i<moveMax;i++){
+                    if(checkFood(posX,posY)){
+                        return;
+                    }
+                    posX+=direction;
+                }
+            }
+            else{
+                for(int i=0;i<moveMax;i++){
+                    if(checkFood(posX,posY)){
+                        return;
+                    }
+                    posY+=direction;
+                }
+                moveMax+=1;
+                direction=-direction;
+            }
+            moveX = !moveX;
+        }
+        Gdx.app.log("FOOD", "NO FOOD FOUND");
+    }
+    protected abstract boolean checkFood(int posX,int posY);
     protected void scanForFemale(Class c) {
-        int currentPos = (int) (getY()/ Potamos.PPM);
+        int currentPos = (int) (getY() / Potamos.PPM);
         int fluc = -1;
         for(int i=currentPos; i<currentPos + COURT_RANGE; ){
             if(i< GameScreen.MAP_SIZE && i> 0) {
@@ -291,10 +377,9 @@ public abstract class Animal extends Sprite implements Runnable {
     }
 
     public void findState() {
-        if(stateExecuted) {
+        if(stateExecuted || WorldHandler.getInstance().stateTime > stateStartTime+STATE_EXECUTION_TIME) {
             if(hunger>50) {
                 currentState = State.SEEKING_FOOD;
-                Gdx.app.log("FOOD", "VERY HUNGRY");
             }
             else {
                 if (!pregnant) {
@@ -320,6 +405,7 @@ public abstract class Animal extends Sprite implements Runnable {
                 }
             }
             stateExecuted = false;
+            stateStartTime = WorldHandler.getInstance().stateTime;
         }
 
 
@@ -344,16 +430,20 @@ public abstract class Animal extends Sprite implements Runnable {
                 idle = AnimalAnims.getInstance().animsMap.get("auroch_female_idle").animList.get(0);
                 eating = AnimalAnims.getInstance().animsMap.get("auroch_female_eating").animList.get(0);
                 walking = AnimalAnims.getInstance().animsMap.get("auroch_female_move").animList.get(0);
+                voice = AnimalAnims.getInstance().animsMap.get("auroch_female_voice").animList.get(0);
+                dead = AnimalAnims.getInstance().animsMap.get("auroch_female_dead").animList.get(0);
                 sex = Potamos.Sex.FEMALE;
             } else {
                 idle = AnimalAnims.getInstance().animsMap.get("auroch_male_idle").animList.get(0);
                 eating = AnimalAnims.getInstance().animsMap.get("auroch_male_eating").animList.get(0);
                 walking = AnimalAnims.getInstance().animsMap.get("auroch_male_move").animList.get(0);
+                voice = AnimalAnims.getInstance().animsMap.get("auroch_male_voice").animList.get(0);
+                dead = AnimalAnims.getInstance().animsMap.get("auroch_male_dead").animList.get(0);
                 sex = Potamos.Sex.MALE;
             }
         }
 
-        setBounds(getX(),getY(),idle.getKeyFrame(0).getRegionWidth()*4,idle.getKeyFrame(0).getRegionHeight()*4);
+        setBounds(getX(),getY(),idle.getKeyFrame(0).getRegionWidth(),idle.getKeyFrame(0).getRegionHeight());
         b2body.getFixtureList().removeIndex(0);
         FixtureDef fdef = defineShape(ANIMAL_BIT);
 
@@ -367,10 +457,10 @@ public abstract class Animal extends Sprite implements Runnable {
 
         PolygonShape shape = new PolygonShape();
         Vector2[] vertices = new Vector2[4];
-        vertices[0] = new Vector2(0,0);
-        vertices[1] = new Vector2(idle.getKeyFrame(0).getRegionWidth()*4,0);
-        vertices[2] = new Vector2(idle.getKeyFrame(0).getRegionWidth()*4,idle.getKeyFrame(0).getRegionHeight()*4-8);
-        vertices[3] = new Vector2(0,idle.getKeyFrame(0).getRegionHeight()*4-8);
+        vertices[0] = new Vector2(8,8);
+        vertices[1] = new Vector2(idle.getKeyFrame(0).getRegionWidth()-8,8);
+        vertices[2] = new Vector2(idle.getKeyFrame(0).getRegionWidth()-8,idle.getKeyFrame(0).getRegionHeight()-6);
+        vertices[3] = new Vector2(8,idle.getKeyFrame(0).getRegionHeight()-6);
         shape.set(vertices);
 
         fdef.shape = shape;
@@ -379,6 +469,7 @@ public abstract class Animal extends Sprite implements Runnable {
 
     public void defineHighlight(){
         highlight = TextureUtils.getInstance().utilsMap.get("highlight");
+        menu_background = TextureUtils.getInstance().utilsMap.get("menu_background");
     }
 
     @Override

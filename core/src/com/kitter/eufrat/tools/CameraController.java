@@ -18,13 +18,11 @@ public class CameraController implements com.badlogic.gdx.input.GestureDetector.
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        Gdx.app.log("GestureDetectorTest", "tap at " + x + ", " + y + ", count: " + count);
         return false;
     }
 
     @Override
     public boolean longPress(float x, float y) {
-        Gdx.app.log("GestureDetectorTest", "long press at " + x + ", " + y);
         return false;
     }
 

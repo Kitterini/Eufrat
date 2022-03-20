@@ -8,7 +8,7 @@ public class TextureUtils {
 
     private static volatile TextureUtils single_instance = null;
     public HashMap<String, Texture> utilsMap = new HashMap<>();
-    String[] names = {"highlight"};
+    String[] names = {"highlight", "menu_background"};
     private TextureUtils() {
         for (String n : names) {
             utilsMap.put(n, new Texture(n + ".png"));

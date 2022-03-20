@@ -24,11 +24,9 @@ public class Tile extends Sprite {
     boolean flipped;
     public Body b2body;
     public int capacity;
-
+    public int chosen;
     public Tile(String type, Vector2 position) {
-
-        // find out if the river is vertical or horizontal
-        int chosen = (int)(Math.random() * ((TileAnims.getInstance().animsMap.get(type).animList.size() )));
+        this.chosen = (int)(Math.random() * ((TileAnims.getInstance().animsMap.get(type).animList.size() )));
         this.anim = TileAnims.getInstance().animsMap.get(type).animList.get(chosen);
         this.type = type;
         this.world = GameScreen.getWorld();
@@ -61,19 +59,21 @@ public class Tile extends Sprite {
     }
 
     public int decreaseCapacity(){
-        if(capacity>Potamos.AUROCH_MEAL){
-            capacity-=Potamos.AUROCH_MEAL;
-            Gdx.app.log("EATING", String.valueOf(capacity));
-            int index = (int)(capacity/100f*TileAnims.getInstance().animsMap.get(type).depletionList.size());
+        if(capacity>Potamos.AUROCH_MEAL_SIZE){
+            capacity-=Potamos.AUROCH_MEAL_SIZE;
+            // shitty math to extract which depletion is for which texture
+            int subindex=TileAnims.getInstance().animsMap.get(type).depletionList.size()/TileAnims.getInstance().animsMap.get(type).animList.size();
+            int index = (int)(capacity/100f*subindex+subindex*chosen);
             this.anim = TileAnims.getInstance().animsMap.get(type).depletionList.get(index);
-            return Potamos.AUROCH_MEAL;
+            return Potamos.AUROCH_MEAL_SIZE;
         }
         else if(capacity>0){
             int foodleft = capacity;
             capacity-=capacity;
-            int index = (int)(capacity/100f*TileAnims.getInstance().animsMap.get(type).depletionList.size());
+            // same here
+            int subindex = TileAnims.getInstance().animsMap.get(type).depletionList.size()/TileAnims.getInstance().animsMap.get(type).animList.size();
+            int index = (int)(capacity/100f*subindex+subindex*chosen);
             this.anim = TileAnims.getInstance().animsMap.get(type).depletionList.get(index);
-            Gdx.app.log("EATING", String.valueOf(capacity));
             return foodleft;
         }
         else {

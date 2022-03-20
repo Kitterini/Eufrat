@@ -27,31 +27,32 @@ public class Hud implements Disposable {
 
     Label FPSLabel;
     Label AurochLabel;
-
+    public BitmapFont hudfont;
     public Hud(Potamos game) {
 
         viewport = new FillViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, new OrthographicCamera());
         stage = new Stage(viewport, game.batch);
 
-        BitmapFont font15 = loadCustomFont(Potamos.font);
+        BitmapFont localfont = loadCustomFont(Potamos.font,1);
 
+        Label.LabelStyle hudstyle = new Label.LabelStyle(localfont, Color.WHITE);
         Table table = new Table();
         table.top();
         table.setFillParent(true);
-        AurochLabel = new Label("", new Label.LabelStyle(font15, Color.WHITE));
+        AurochLabel = new Label("", hudstyle);
         table.add( AurochLabel).padRight(20).colspan(2);
-        FPSLabel = new Label("", new Label.LabelStyle(font15, Color.WHITE));
+        FPSLabel = new Label("", hudstyle);
         table.add(FPSLabel).padRight(20);
         table.row();
         Table highlightTable = new Table();
         ScrollPane scrollPane = new ScrollPane(highlightTable);
-        Label testLabel = new Label("TEST", new Label.LabelStyle(font15, Color.WHITE));
+        Label testLabel = new Label("TEST", hudstyle);
         highlightTable.add(testLabel);
         table.add(testLabel).colspan(4).right();
         //table.debug();
 
         stage.addActor(table);
-
+        hudfont = loadCustomFont(Potamos.font,0.5f);
     }
 
     public void update(float dt) {
@@ -59,7 +60,7 @@ public class Hud implements Disposable {
         AurochLabel.setText("Aurochs: " + WorldHandler.animals.size());
     }
 
-    public static BitmapFont loadCustomFont(String fileName){
+    public static BitmapFont loadCustomFont(String fileName, float size){
         AssetManager manager=new AssetManager();
         FileHandleResolver resolver = new InternalFileHandleResolver();
         manager.setLoader(FreeTypeFontGenerator.class, new FreeTypeFontGeneratorLoader(resolver));
@@ -67,7 +68,7 @@ public class Hud implements Disposable {
 
         FreetypeFontLoader.FreeTypeFontLoaderParameter params = new FreetypeFontLoader.FreeTypeFontLoaderParameter();
         params.fontFileName = fileName;    // path of .TTF file where that exist
-        params.fontParameters.size = Gdx.graphics.getHeight()/30;
+        params.fontParameters.size = (int)(Gdx.graphics.getHeight()* size /30);
         manager.load(fileName, BitmapFont.class, params);   // fileName with extension, sameName will use to get from manager
 
         manager.finishLoading();  //or use update() inside render() method

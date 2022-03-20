@@ -179,18 +179,17 @@ public class StartScreen implements Screen {
         }
     }
     void setupStartMenu(){
-        BitmapFont font15 = loadCustomFont(Potamos.font);
-
-        Label.LabelStyle font = new Label.LabelStyle(font15, Color.WHITE);
+        BitmapFont font = loadCustomFont(Potamos.font,1);
+        BitmapFont font2 = loadCustomFont(Potamos.font2,2);
+        Label.LabelStyle fontStyle = new Label.LabelStyle(font2, Color.WHITE);
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
-        btnStyle.font = font15;
+        btnStyle.font = font;
         btnStyle.font.getData().setScale(0.9f);
         Table table = new Table();
         table.center();
         table.setFillParent(true);
-//        Gdx.app.log("SAS",Kotas.class.getName().split("\\.")[0]);
         String[] gameName = Potamos.class.getName().split("\\.");
-        Label titleLabel = new Label(gameName[gameName.length-1], font);
+        Label titleLabel = new Label(gameName[gameName.length-1], fontStyle);
 
         TextButton playButton = new TextButton("New Game", btnStyle);
         TextButton settingsButton = new TextButton("Settings", btnStyle);
@@ -210,7 +209,7 @@ public class StartScreen implements Screen {
         stage.addActor(table);
     }
     void setupSettingsMenu(){
-        BitmapFont font15 = loadCustomFont(game.font);
+        BitmapFont font15 = loadCustomFont(game.font,1);
 
         Label.LabelStyle font = new Label.LabelStyle(font15, Color.WHITE);
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
@@ -251,7 +250,7 @@ public class StartScreen implements Screen {
         //resChoice = selectBox.getSelected().toString();
     }
     void setupGameMenu() {
-        BitmapFont font15 = loadCustomFont(Potamos.font);
+        BitmapFont font15 = loadCustomFont(Potamos.font,1);
 
         Label.LabelStyle font = new Label.LabelStyle(font15, Color.WHITE);
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
@@ -295,7 +294,7 @@ public class StartScreen implements Screen {
         stage.addActor(outerTable);
     }
     void setupLoading() {
-        BitmapFont font15 = loadCustomFont(game.font);
+        BitmapFont font15 = loadCustomFont(game.font,1);
 
         Label.LabelStyle font = new Label.LabelStyle(font15, Color.WHITE);
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
@@ -310,7 +309,7 @@ public class StartScreen implements Screen {
         stage.addActor(table);
         loading = true;
     }
-    public static BitmapFont loadCustomFont(String fileName){
+    public static BitmapFont loadCustomFont(String fileName,float size){
         AssetManager manager=new AssetManager();
         FileHandleResolver resolver = new InternalFileHandleResolver();
         manager.setLoader(FreeTypeFontGenerator.class, new FreeTypeFontGeneratorLoader(resolver));
@@ -318,7 +317,7 @@ public class StartScreen implements Screen {
 
         FreetypeFontLoader.FreeTypeFontLoaderParameter params = new FreetypeFontLoader.FreeTypeFontLoaderParameter();
         params.fontFileName = fileName;    // path of .TTF file where that exist
-        params.fontParameters.size = Gdx.graphics.getHeight()/15;
+        params.fontParameters.size = (int)(Gdx.graphics.getHeight() * size/15);
         manager.load(fileName, BitmapFont.class, params);   // fileName with extension, sameName will use to get from manager
 
         manager.finishLoading();  //or use update() inside render() method

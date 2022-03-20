@@ -24,10 +24,14 @@ public class GameScreen implements Screen {
     private static World world;
     private final float scrollPower = 10; // the bigger the slower
     private float ratio;
+    private static final float STEP_TIME = 1f/60f;
+    public static float GAME_SPEED = 1;
+    private float accumulator = 0;
     public static int MAP_SIZE;
     public static int ANIMAL_AMOUNT ;//= 1;
     public static float VOLUME;
-    private Hud hud;
+
+    private static Hud hud;
     private Potamos game;
     private Box2DDebugRenderer b2dr;
 
@@ -57,7 +61,6 @@ public class GameScreen implements Screen {
                 Pixmap pixmap = new Pixmap(Gdx.files.internal("cursor_clicked.png"));
                 Cursor cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
                 Gdx.graphics.setCursor(cursor);
-                Gdx.app.log("CLICK","Trzymam");
                 return false;
             }
 
@@ -66,7 +69,6 @@ public class GameScreen implements Screen {
                 Pixmap pixmap = new Pixmap(Gdx.files.internal("cursor.png"));
                 Cursor cursor = Gdx.graphics.newCursor(pixmap, 0, 0);
                 Gdx.graphics.setCursor(cursor);
-                Gdx.app.log("CLICK","Puszczam");
                 return false;
             }
         };
@@ -111,14 +113,15 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        delta = delta * GAME_SPEED;
         update(delta);
-        handleInput(delta);
+        handleInput();
         if(WorldHandler.getInstance().stateTime > sortAnimalsStateTime + 0.2){
             WorldHandler.getInstance().handleAnimals();
             sortAnimalsStateTime = WorldHandler.getInstance().stateTime;
             WorldHandler.getInstance().setVisibility(gameCam.position);
         }
-        world.step(1/60f, 2,2);
+        stepWorld(delta);
         Gdx.gl.glClearColor(0,0,0,0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.setProjectionMatrix(gameCam.combined);
@@ -133,9 +136,33 @@ public class GameScreen implements Screen {
         }
 
     }
-    public void handleInput(float dt) {
+    private void stepWorld(float delta) {
+
+        accumulator += Math.min(delta, 0.25f);
+
+        if (accumulator >= STEP_TIME) {
+            accumulator -= STEP_TIME;
+
+            world.step(STEP_TIME, 2, 2);
+        }
+    }
+    public void handleInput() {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
             setupFullScreen(Potamos.screen_mode);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
+            if(GAME_SPEED <= 8) {
+                GAME_SPEED = GAME_SPEED * 2;
+                Gdx.app.log("FASTER", String.valueOf(GAME_SPEED));
+                WorldHandler.getInstance().adjustAnimalSpeed(2f);
+            }
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
+            if(GAME_SPEED >= 0.125) {
+                GAME_SPEED = GAME_SPEED / 2;
+                Gdx.app.log("SLOWER", String.valueOf(GAME_SPEED));
+                WorldHandler.getInstance().adjustAnimalSpeed(0.5f);
+            }
         }
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             moveY(1f);
@@ -160,7 +187,7 @@ public class GameScreen implements Screen {
 
             //}
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.F) || mouse.getScroll() == 1){
+        if(Gdx.input.isKeyPressed(Input.Keys.F)){
             String foods = "";
             for(Animal a : WorldHandler.animals){
                 foods = foods + a.hunger + " ";
@@ -236,6 +263,7 @@ public class GameScreen implements Screen {
         return imultiplexer;
     }
     public static OrthographicCamera getGameCam(){ return gameCam; }
+    public static Hud getHud(){return hud;}
     @Override
     public void pause() {
 

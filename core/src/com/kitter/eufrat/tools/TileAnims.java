@@ -40,9 +40,13 @@ public class TileAnims {
 
             if(sizes.get("depletion")!=null){
                 if(sizes.get("depletion").getClass()==JSONArray.class) {
+
                     JSONArray depletionArray = (JSONArray) sizes.get("depletion");
-                    for (Object o : depletionArray) {
-                        temp.depletionList.add(prepareAdditionalAnim(t.toString(),(String) o));
+                    for(String name : tileNames) {
+                        for (Object o : depletionArray) {
+                            Gdx.app.log("AA", name.split("\\.")[0]+ (String) o);
+                            temp.depletionList.add(prepareAdditionalAnim(name.split("\\.")[0], (String) o));
+                        }
                     }
                 }
             }
@@ -58,6 +62,7 @@ public class TileAnims {
     protected TextureRegion prepareTex(String type) {
         return new TextureRegion(new Texture("tiles/" + type ));
     }
+
     private Animation prepareAnim(String type){
         Texture spritemap = new Texture("tiles/" + type);
         int anim_num = spritemap.getWidth() / spritemap.getHeight();
@@ -75,6 +80,7 @@ public class TileAnims {
             return new Animation<TextureRegion>(0.15f, frames);
         }
     }
+
     private Animation prepareAdditionalAnim(String type,String addition){
         Texture spritemap = new Texture("tiles/" + type + "_" + addition + ".png");
         int anim_num = spritemap.getWidth() / spritemap.getHeight();

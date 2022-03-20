@@ -15,27 +15,18 @@ public class WorldContactListener implements ContactListener {
         int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
         switch (cDef) {
             case Potamos.TILE_BIT | Potamos.AUROCH_BIT:
-                //Gdx.app.log("CONTACT", "AUROCH-TILE CONTACT!");
                 break;
             case Potamos.AUROCH_BIT:
                 if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.MALE &&
                     ((Auroch)fixB.getUserData()).sex == Potamos.Sex.FEMALE ){
                     if (((Auroch) fixB.getUserData()).currentState != Animal.State.PREGNANT){
-                        Gdx.app.log("CONTACT","SEX! ALL RIGHT!");
                         ((Auroch) fixB.getUserData()).setPregnant();
-                    }
-                    else{
-                        Gdx.app.log("CONTACT","ALREADY PREGGO!");
                     }
                 }
                 else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.FEMALE &&
                     ((Auroch)fixB.getUserData()).sex == Potamos.Sex.MALE ){
                     if (((Auroch) fixA.getUserData()).currentState != Animal.State.PREGNANT){
-                        Gdx.app.log("CONTACT","SEX! ALL RIGHT!");
                         ((Auroch) fixA.getUserData()).setPregnant();
-                    }
-                    else{
-                        Gdx.app.log("CONTACT","ALREADY PREGGO!");
                     }
                 }
                 else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.MALE &&

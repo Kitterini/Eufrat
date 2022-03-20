@@ -192,8 +192,8 @@ public class WorldCreator {
                     for (int yaxis = ymin - 1; yaxis < ymax + 1; yaxis++) {
                         tempX = (int) value.x + xaxis;
                         tempY = (int) value.y + yaxis;
-                        if (tempY < GameScreen.MAP_SIZE &&
-                                tempX < GameScreen.MAP_SIZE &&
+                        if (tempY+1 < GameScreen.MAP_SIZE &&
+                                tempX+1 < GameScreen.MAP_SIZE &&
                                 tempY >= 0 &&
                                 tempX >= 0) {
                             WorldHandler.worldTiles[tempX + 1][tempY + 1] = new Tile("waters",
@@ -219,7 +219,7 @@ public class WorldCreator {
             Potamos.Sex sexes[] = new Potamos.Sex[2];
             sexes[0]= Potamos.Sex.MALE;
             sexes[1]= Potamos.Sex.FEMALE;
-            WorldHandler.getInstance().addAuroch(x * Potamos.PPM, y* Potamos.PPM, sexes[rand.nextInt(2)]);
+            WorldHandler.getInstance().addAuroch(x * Potamos.PPM, y* Potamos.PPM, sexes[rand.nextInt(2)],0);
         }
     }
 
