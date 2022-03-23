@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.Sprites.Animal;
 import com.kitter.eufrat.tools.*;
-import com.kitter.eufrat.WorldHandler;
+import com.kitter.eufrat.tools.WorldHandler;
 
 public class GameScreen implements Screen {
     private static World world;
@@ -46,7 +46,7 @@ public class GameScreen implements Screen {
     // how about the stage
     public GameScreen(Potamos game, int seed, int size) {
         MAP_SIZE = size;
-        ANIMAL_AMOUNT = (int)(0.003 * MAP_SIZE*MAP_SIZE + 0.73 *MAP_SIZE - 6);
+        ANIMAL_AMOUNT = 3000;// (int)(0.003 * MAP_SIZE*MAP_SIZE + 0.73 *MAP_SIZE - 6);
         ratio = (float)Gdx.graphics.getWidth()/(float)Gdx.graphics.getHeight();
         Gdx.app.log("RATIO", String.valueOf(ratio));
         WorldHandler.getInstance().setSeed(seed);

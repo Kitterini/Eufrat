@@ -2,7 +2,6 @@ package com.kitter.eufrat.tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import com.kitter.eufrat.WorldHandler;
 import com.kitter.eufrat.screens.GameScreen;
 
 public class CameraController implements com.badlogic.gdx.input.GestureDetector.GestureListener {

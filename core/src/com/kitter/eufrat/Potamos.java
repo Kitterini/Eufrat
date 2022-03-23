@@ -18,11 +18,12 @@ public class Potamos extends Game {
 	public static final int AUROCH_ADOLECENCE_TIME = 300;
 	public static final int AUROCH_LIFE_TIME = 1500;
 	public static final int AUROCH_MEAL_SIZE = 25;
+	public static final int AUROCH_DECAY_TIME = 200;
 	public static final String font = "Gothic.ttf";
 	public static final String font2 = "MECHANI_.ttf";
-	public static String screen_mode = "Fullscreen on";
+	public static String screen_mode = "Fullscreen off";
 	public static String debug_mode = "Debug off";
-	public static String default_map_size = "10";
+	public static String default_map_size = "100";
 	public static String default_seed = "213";
 	public SpriteBatch batch;
 	public static AssetManager manager;

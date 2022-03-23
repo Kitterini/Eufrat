@@ -1,4 +1,4 @@
-package com.kitter.eufrat;
+package com.kitter.eufrat.tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -6,14 +6,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import com.badlogic.gdx.math.Vector3;
+import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.Sprites.Animal;
 import com.kitter.eufrat.Sprites.Auroch;
 import com.kitter.eufrat.Sprites.Tile;
 import com.kitter.eufrat.screens.GameScreen;
-import com.kitter.eufrat.tools.AnimalAnims;
-import com.kitter.eufrat.tools.AnimalDef;
-import com.kitter.eufrat.tools.TileAnims;
-import com.kitter.eufrat.tools.WorldCreator;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -27,7 +24,7 @@ public class WorldHandler {
     public static Tile[][] worldTiles;
     public static ArrayList<Animal> animalsHighlighted;
     public static ArrayList<Animal> animals;
-    public static ArrayList<Thread> animalThreads;
+    public static ArrayList<Animal> deadAnimals;
     public static ArrayList<ArrayList<Animal>> tempAnimalPos;
     public static LinkedBlockingQueue<AnimalDef> animalsToSpawn;
     public Sprite backg;
@@ -50,7 +47,7 @@ public class WorldHandler {
         worldTiles = new Tile[GameScreen.MAP_SIZE][GameScreen.MAP_SIZE];
         animalsHighlighted = new ArrayList<Animal>();
         animals = new ArrayList<Animal>();
-        animalThreads = new ArrayList<Thread>();
+        deadAnimals = new ArrayList<Animal>();
         tempAnimalPos = new ArrayList<ArrayList<Animal>>(GameScreen.MAP_SIZE);
 
         for(int i=0; i< GameScreen.MAP_SIZE;i++){
@@ -109,38 +106,42 @@ public class WorldHandler {
         }
         for(int i = 0; i< animals.size(); i++){
             // auroch section
-            if(animals.get(i).getClass()==Auroch.class){
+            if(animals.get(i).getClass() == Auroch.class){
                 if(animals.get(i).age+ Potamos.AUROCH_ADOLECENCE_TIME<WorldHandler.getInstance().stateTime &&
                    animals.get(i).sex == Potamos.Sex.CHILD){
                     growUp((Auroch) animals.get(i));
                 }
-                if(animals.get(i).age + Potamos.AUROCH_LIFE_TIME<WorldHandler.getInstance().stateTime){
+                if(animals.get(i).age + Potamos.AUROCH_LIFE_TIME < WorldHandler.getInstance().stateTime){
                     Gdx.app.log("DEATH","AGE");
-                    animalDie(i);
+                    animals.get(i).die();
                     i++;
                 }
             }
             if(i < animals.size()) {
-                if (animals.get(i).hunger > 100f) {
-                    Gdx.app.log("DEATH", "HUNGER");
-                    animalDie(i);
-                    i++;
-                } else {
-                    animals.get(i).hunger += 0.05;
-                }
+                    if (animals.get(i).hunger > 100f) {
+                        Gdx.app.log("DEATH", "HUNGER");
+                        animals.get(i).die();
+                        i++;
+                    } else {
+                        animals.get(i).hunger += 0.05;
+                    }
             }
             if(i < animals.size()) {
                 tempAnimalPos.get((int) (animals.get(i).getY() / Potamos.PPM)).add(animals.get(i));
             }
         }
+        for (Animal deadAnimal : deadAnimals) {
+            tempAnimalPos.get((int) (deadAnimal.getY() / Potamos.PPM)).add(deadAnimal);
+        }
     }
-
+    // for speedup purposes
     public void adjustAnimalSpeed(float speed){
         for(Animal animal : animals){
             animal.b2body.setLinearVelocity(animal.b2body.getLinearVelocity().x * speed,
                                             animal.b2body.getLinearVelocity().y * speed);
         }
     }
+
     public static void handleSpawningAnimals(){
         if(!animalsToSpawn.isEmpty()){
             Gdx.app.log("Spawn", "spawning");
@@ -151,14 +152,8 @@ public class WorldHandler {
         }
     }
 
-    public static void animalDie(int i){
-        animals.get(i).currentState = Animal.State.DEAD;
-        animals.get(i).highlighted = false;
-        GameScreen.getWorld().destroyBody(animals.get(i).b2body);
-        animals.get(i).dispose();
-        animals.get(i).threadStop();
-        animals.remove(i);
-        animalThreads.remove(i);
+    public static void animalRemove(Animal a){
+        deadAnimals.remove(a);
     }
 
     public void growUp(Auroch a){
@@ -217,8 +212,8 @@ public class WorldHandler {
     public void addAuroch(float x, float y, Potamos.Sex gender, int generation){
         animals.add(new Auroch(x, y, gender));
         WorldHandler.animals.get(animals.size()-1).generation = generation;
-        animalThreads.add(new Thread(WorldHandler.animals.get(animals.size()-1)));
-        animalThreads.get(animals.size()-1).start();
+        Thread t =new Thread(WorldHandler.animals.get(animals.size()-1));
+        t.start();
     }
 
     public void setSeed(int seed){

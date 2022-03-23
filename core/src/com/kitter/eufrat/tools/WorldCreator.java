@@ -3,7 +3,6 @@ package com.kitter.eufrat.tools;
 import com.badlogic.gdx.math.Vector2;
 import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.Sprites.Tile;
-import com.kitter.eufrat.WorldHandler;
 import com.kitter.eufrat.screens.GameScreen;
 
 import java.util.Random;

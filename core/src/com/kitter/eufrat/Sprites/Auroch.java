@@ -1,17 +1,18 @@
 package com.kitter.eufrat.Sprites;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.kitter.eufrat.Potamos;
-import com.kitter.eufrat.WorldHandler;
+import com.kitter.eufrat.tools.WorldHandler;
 import com.kitter.eufrat.screens.GameScreen;
 import com.kitter.eufrat.tools.AnimalAnims;
 import com.kitter.eufrat.tools.MouseInputProcessor;
 
 
 public class Auroch extends Animal {
-    MouseInputProcessor mouse;
+
     public Auroch(float x, float y, Potamos.Sex gender) {
         super(x,y,gender);
         if(sex == Potamos.Sex.FEMALE) {
@@ -57,7 +58,6 @@ public class Auroch extends Animal {
                    getX() + getWidth() > vec.x &&
                    getY() + getHeight() > vec.y &&
                    button == Input.Buttons.LEFT){
-                    Gdx.app.log("CLICK","ON THE COW");
                     highlighted = !highlighted;
                     if(highlighted){
                         WorldHandler.animalsHighlighted.add(Auroch.this);
@@ -82,6 +82,44 @@ public class Auroch extends Animal {
         Gdx.input.setInputProcessor(GameScreen.getImultiplexer());
     }
 
+    @Override
+    protected void updateAnims(){
+        if (rand.nextInt(2) == 1) {
+            idle = AnimalAnims.getInstance().animsMap.get("auroch_female_idle").animList.get(0);
+            eating = AnimalAnims.getInstance().animsMap.get("auroch_female_eating").animList.get(0);
+            walking = AnimalAnims.getInstance().animsMap.get("auroch_female_move").animList.get(0);
+            voice = AnimalAnims.getInstance().animsMap.get("auroch_female_voice").animList.get(0);
+            dead = AnimalAnims.getInstance().animsMap.get("auroch_female_dead").animList.get(0);
+            sex = Potamos.Sex.FEMALE;
+        } else {
+            idle = AnimalAnims.getInstance().animsMap.get("auroch_male_idle").animList.get(0);
+            eating = AnimalAnims.getInstance().animsMap.get("auroch_male_eating").animList.get(0);
+            walking = AnimalAnims.getInstance().animsMap.get("auroch_male_move").animList.get(0);
+            voice = AnimalAnims.getInstance().animsMap.get("auroch_male_voice").animList.get(0);
+            dead = AnimalAnims.getInstance().animsMap.get("auroch_male_dead").animList.get(0);
+            sex = Potamos.Sex.MALE;
+        }
+    }
+
+    @Override
+    protected void drawAge(Batch batch){
+        float curAge = WorldHandler.getInstance().stateTime-age;
+        if(curAge<Potamos.AUROCH_LIFE_TIME/5f){
+            GameScreen.getHud().hudfont.draw(batch,"juvenile",getX()+5,getY()-110);
+        }
+        else if(curAge<Potamos.AUROCH_LIFE_TIME/5f*2){
+            GameScreen.getHud().hudfont.draw(batch,"young",getX()+5,getY()-110);
+        }
+        else if(curAge<Potamos.AUROCH_LIFE_TIME/5f*3){
+            GameScreen.getHud().hudfont.draw(batch,"middle-aged",getX()+5,getY()-110);
+        }
+        else if(curAge<Potamos.AUROCH_LIFE_TIME/5f*4){
+            GameScreen.getHud().hudfont.draw(batch,"old",getX()+5,getY()-110);
+        }
+        else{
+            GameScreen.getHud().hudfont.draw(batch,"venerable",getX()+5,getY()-110);
+        }
+    }
 
     @Override
     public boolean checkFood(int posX, int posY){
@@ -95,7 +133,6 @@ public class Auroch extends Animal {
                 foodFound = true;
                 foodPos = new Vector2((posX) * Potamos.PPM + Potamos.PPM / 3,
                         (posY) * Potamos.PPM + Potamos.PPM / 3);
-                Gdx.app.log("FOOD", "FOUND AT " + posX + " " + posY);
                 return true;
             }
         }
@@ -104,6 +141,5 @@ public class Auroch extends Animal {
 
     public void dispose () {
         super.dispose();
-        GameScreen.getImultiplexer().removeProcessor(mouse);
     }
 }

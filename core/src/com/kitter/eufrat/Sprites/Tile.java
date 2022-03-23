@@ -12,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.kitter.eufrat.screens.GameScreen;
 import com.kitter.eufrat.tools.TileAnims;
 import com.kitter.eufrat.Potamos;
-import com.kitter.eufrat.WorldHandler;
+import com.kitter.eufrat.tools.WorldHandler;
 
 public class Tile extends Sprite {
     public Vector2 position;

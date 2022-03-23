@@ -33,7 +33,6 @@ public class TileAnims {
         for (Object t : landTypes.keySet()) {
             ArrayList<String> tileNames;
             tileNames = listFilesForFolder(t.toString());
-            Gdx.app.log("AA", String.valueOf(tileNames));
             //identify number of different sprites
             AnimKey temp = new AnimKey();
             JSONObject sizes = (JSONObject) landTypes.get(t);
@@ -44,7 +43,6 @@ public class TileAnims {
                     JSONArray depletionArray = (JSONArray) sizes.get("depletion");
                     for(String name : tileNames) {
                         for (Object o : depletionArray) {
-                            Gdx.app.log("AA", name.split("\\.")[0]+ (String) o);
                             temp.depletionList.add(prepareAdditionalAnim(name.split("\\.")[0], (String) o));
                         }
                     }

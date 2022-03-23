@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kitter.eufrat.Potamos;
-import com.kitter.eufrat.WorldHandler;
+import com.kitter.eufrat.tools.WorldHandler;
 
 
 public class Hud implements Disposable {
