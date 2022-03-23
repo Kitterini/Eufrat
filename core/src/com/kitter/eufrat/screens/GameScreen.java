@@ -46,7 +46,7 @@ public class GameScreen implements Screen {
     // how about the stage
     public GameScreen(Potamos game, int seed, int size) {
         MAP_SIZE = size;
-        ANIMAL_AMOUNT = 3000;// (int)(0.003 * MAP_SIZE*MAP_SIZE + 0.73 *MAP_SIZE - 6);
+        ANIMAL_AMOUNT = 4000;// (int)(0.003 * MAP_SIZE*MAP_SIZE + 0.73 *MAP_SIZE - 6);
         ratio = (float)Gdx.graphics.getWidth()/(float)Gdx.graphics.getHeight();
         Gdx.app.log("RATIO", String.valueOf(ratio));
         WorldHandler.getInstance().setSeed(seed);

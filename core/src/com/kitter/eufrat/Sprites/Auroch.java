@@ -131,8 +131,8 @@ public class Auroch extends Animal {
                     WorldHandler.worldTiles[posX][posY].type == "fertile") &&
                     WorldHandler.worldTiles[posX][posY].capacity > 0) {
                 foodFound = true;
-                foodPos = new Vector2((posX) * Potamos.PPM + Potamos.PPM / 3,
-                        (posY) * Potamos.PPM + Potamos.PPM / 3);
+                foodPos = new Vector2((posX) * Potamos.PPM + Potamos.PPM / 2,
+                        (posY) * Potamos.PPM + Potamos.PPM / 2);
                 return true;
             }
         }

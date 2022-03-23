@@ -21,12 +21,14 @@ public class WorldContactListener implements ContactListener {
                     ((Auroch)fixB.getUserData()).sex == Potamos.Sex.FEMALE ){
                     if (((Auroch) fixB.getUserData()).currentState != Animal.State.PREGNANT){
                         ((Auroch) fixB.getUserData()).setPregnant();
+                        ((Auroch) fixA.getUserData()).currentState = Animal.State.IDLE;
                     }
                 }
                 else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.FEMALE &&
                     ((Auroch)fixB.getUserData()).sex == Potamos.Sex.MALE ){
                     if (((Auroch) fixA.getUserData()).currentState != Animal.State.PREGNANT){
                         ((Auroch) fixA.getUserData()).setPregnant();
+                        ((Auroch) fixB.getUserData()).currentState = Animal.State.IDLE;
                     }
                 }
                 else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.MALE &&

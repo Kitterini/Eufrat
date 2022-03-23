@@ -18,17 +18,17 @@ import java.util.Random;
 
 
 
-public abstract class Animal extends Sprite implements Runnable {
+public abstract class Animal extends Sprite {  // implements Runnable {
     public enum State{IDLE, WALKING, SPEAK, COURT, PREGNANT, SEEKING_FOOD, EATING, DEAD};
     protected int PREGGO_TIME = 10;
     protected int EATING_TIME = 2;
     protected int STATE_EXECUTION_TIME = 10;
 
     // percentages for randomized states
-    protected int IDLE_PERCENTAGE = 5;
+    protected int IDLE_PERCENTAGE = 25;
     protected int WALKING_PERCENTAGE = 30;
     protected int SPEAK_PERCENTAGE = 10;
-    protected int COURT_PERCENTAGE = 30;
+    protected int COURT_PERCENTAGE = 10;
     protected int FEED_PERCENTAGE = 25;
 
     // range for animals to look for food or mating
@@ -46,6 +46,7 @@ public abstract class Animal extends Sprite implements Runnable {
     protected boolean pregnant;
     protected float conceiveTime;
     protected float stateStartTime;
+    protected float  nextStateLookup;
     protected float goDirectionTime;
     public float deathTime;
     protected float eatingStart;
@@ -98,7 +99,7 @@ public abstract class Animal extends Sprite implements Runnable {
         String[] className = this.getClass().getName().split("\\.");
         name = className[className.length-1];
         stateStartTime = 0;
-
+        nextStateLookup = 0;
     }
 
     @Override
@@ -166,7 +167,11 @@ public abstract class Animal extends Sprite implements Runnable {
     }
 
     public void update(float dt) {
-        if(currentState==State.IDLE && b2body.getLinearVelocity().x != 0 && b2body.getLinearVelocity().x != 0) {
+        if(WorldHandler.getInstance().stateTime > stateStartTime + nextStateLookup && currentState != Animal.State.DEAD){
+            findState();
+        }
+
+        if((currentState==State.IDLE || currentState==State.DEAD ) && b2body.getLinearVelocity().x != 0 && b2body.getLinearVelocity().x != 0) {
             b2body.setLinearVelocity(0, 0);
         }
         if(!stateExecuted) {
@@ -413,6 +418,7 @@ public abstract class Animal extends Sprite implements Runnable {
             }
             stateExecuted = false;
             stateStartTime = WorldHandler.getInstance().stateTime;
+            nextStateLookup = rand.nextInt(5);
         }
 
 
@@ -474,28 +480,28 @@ public abstract class Animal extends Sprite implements Runnable {
         WorldHandler.animalsHighlighted.remove(this);
         WorldHandler.animals.remove(this);
         WorldHandler.deadAnimals.add(this);
-        threadStop();
-
-    }
-
-    @Override
-    public void run() {
-        stateExecuted = true;
-        while(!threadExit) {
-            try {
-                Thread.sleep(rand.nextInt(3)*1000);
-                findState();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        //threadStop();
         currentState = Animal.State.DEAD;
-        Gdx.app.log("LIFE THREAD","CUT");
     }
 
-    public void threadStop() {
-        threadExit = true;
-    }
+//    @Override
+//    public void run() {
+//        stateExecuted = true;
+//        while(!threadExit) {
+//            try {
+//                Thread.sleep(rand.nextInt(3)*1000);
+//                findState();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        currentState = Animal.State.DEAD;
+//        Gdx.app.log("LIFE THREAD","CUT");
+//    }
+//
+//    public void threadStop() {
+//        threadExit = true;
+//    }
     public void dispose () {
 
     }

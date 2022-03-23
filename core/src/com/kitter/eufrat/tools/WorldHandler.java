@@ -212,8 +212,8 @@ public class WorldHandler {
     public void addAuroch(float x, float y, Potamos.Sex gender, int generation){
         animals.add(new Auroch(x, y, gender));
         WorldHandler.animals.get(animals.size()-1).generation = generation;
-        Thread t =new Thread(WorldHandler.animals.get(animals.size()-1));
-        t.start();
+        //Thread t =new Thread(WorldHandler.animals.get(animals.size()-1));
+        //t.start();
     }
 
     public void setSeed(int seed){
