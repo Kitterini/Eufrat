@@ -14,6 +14,7 @@ public class Potamos extends Game {
 	public static final short NOTHING_BIT = 0;
 	public static final short TILE_BIT = 1;
 	public static final short AUROCH_BIT = 2;
+	public static final short DEAD_AUROCH_BIT = 4;
 	public enum Sex{MALE, FEMALE, CHILD};
 	public static final int AUROCH_ADOLECENCE_TIME = 300;
 	public static final int AUROCH_LIFE_TIME = 1500;
@@ -61,4 +62,6 @@ public class Potamos extends Game {
 		batch.dispose();
 		img.dispose();
 	}
+
+	public enum State{IDLE, WALKING, SPEAK, COURT, PREGNANT, SEEKING_FOOD, EATING, DEAD}
 }

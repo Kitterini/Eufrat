@@ -18,17 +18,16 @@ import java.util.Random;
 
 
 
-public abstract class Animal extends Sprite implements Runnable {
-    public enum State{IDLE, WALKING, SPEAK, COURT, PREGNANT, SEEKING_FOOD, EATING, DEAD};
+public abstract class Animal extends Sprite {  // implements Runnable {
     protected int PREGGO_TIME = 10;
     protected int EATING_TIME = 2;
     protected int STATE_EXECUTION_TIME = 10;
 
     // percentages for randomized states
-    protected int IDLE_PERCENTAGE = 5;
-    protected int WALKING_PERCENTAGE = 30;
+    protected int IDLE_PERCENTAGE = 25;
+    protected int WALKING_PERCENTAGE = 20;
     protected int SPEAK_PERCENTAGE = 10;
-    protected int COURT_PERCENTAGE = 30;
+    protected int COURT_PERCENTAGE = 20;
     protected int FEED_PERCENTAGE = 25;
 
     // range for animals to look for food or mating
@@ -36,7 +35,7 @@ public abstract class Animal extends Sprite implements Runnable {
     protected int COURT_RANGE = 10;
 
     public int generation;
-    public State currentState;
+    public Potamos.State currentState;
     public Potamos.Sex sex;
     public World world;
     public float hunger;
@@ -46,6 +45,7 @@ public abstract class Animal extends Sprite implements Runnable {
     protected boolean pregnant;
     protected float conceiveTime;
     protected float stateStartTime;
+    protected float  nextStateLookup;
     protected float goDirectionTime;
     public float deathTime;
     protected float eatingStart;
@@ -92,13 +92,13 @@ public abstract class Animal extends Sprite implements Runnable {
         highlighted = false;
         menu = false;
         goDirectionTime = WorldHandler.getInstance().stateTime;
-        currentState = State.IDLE;
+        currentState = Potamos.State.IDLE;
         rand = WorldHandler.getInstance().rand;
         hunger = rand.nextInt(50);
         String[] className = this.getClass().getName().split("\\.");
         name = className[className.length-1];
         stateStartTime = 0;
-
+        nextStateLookup = 0;
     }
 
     @Override
@@ -166,7 +166,11 @@ public abstract class Animal extends Sprite implements Runnable {
     }
 
     public void update(float dt) {
-        if(currentState==State.IDLE && b2body.getLinearVelocity().x != 0 && b2body.getLinearVelocity().x != 0) {
+        if(WorldHandler.getInstance().stateTime > stateStartTime + nextStateLookup && currentState != Potamos.State.DEAD){
+            findState();
+        }
+
+        if((currentState== Potamos.State.IDLE || currentState== Potamos.State.DEAD || currentState== Potamos.State.PREGNANT) && b2body.getLinearVelocity().x != 0 && b2body.getLinearVelocity().x != 0) {
             b2body.setLinearVelocity(0, 0);
         }
         if(!stateExecuted) {
@@ -191,13 +195,13 @@ public abstract class Animal extends Sprite implements Runnable {
                             b2body.applyLinearImpulse(speed, b2body.getWorldCenter(), true);
                         }
                         else {
-                            currentState = State.WALKING;
+                            currentState = Potamos.State.WALKING;
                         }
                     }
                     else{
-                        if(passed(femalePos)){
+                        if(passed(femalePos,2)){
                             femaleFound = false;
-                            currentState = State.IDLE;
+                            currentState = Potamos.State.IDLE;
                         }
                         if(WorldHandler.getInstance().stateTime>goDirectionTime+1 && femaleFound){
                             speed.x = (femalePos.x - b2body.getPosition().x) * 500f;
@@ -226,7 +230,7 @@ public abstract class Animal extends Sprite implements Runnable {
                                             getY()),
                                 Potamos.Sex.CHILD,
                                 generation+1));
-                        currentState = State.IDLE;
+                        currentState = Potamos.State.IDLE;
                         pregnant = false;
                         stateExecuted = true;
                     }
@@ -242,14 +246,14 @@ public abstract class Animal extends Sprite implements Runnable {
                         }
                         else{
                             Gdx.app.log("FAMINE","DANGER NO FOOD IN RANGE");
-                            currentState = State.WALKING;
+                            currentState = Potamos.State.WALKING;
                         }
                     }
                     else{
-                        if(passed(foodPos)) {
+                        if(passed(foodPos,5)) {
                             foodFound = false;
                             b2body.setLinearVelocity(0, 0);
-                            currentState = State.EATING;
+                            currentState = Potamos.State.EATING;
                             eatingStart = WorldHandler.getInstance().stateTime;
 
                             if (rand.nextInt(10) == 0) {
@@ -269,7 +273,7 @@ public abstract class Animal extends Sprite implements Runnable {
                     break;
                 case EATING:
                     if(eatingStart < WorldHandler.getInstance().stateTime - EATING_TIME){
-                        currentState = State.IDLE;
+                        currentState = Potamos.State.IDLE;
                         WorldHandler.worldTiles[(int)(foodPos.x/Potamos.PPM)][(int)(foodPos.y/Potamos.PPM)].decreaseCapacity();
                         if(hunger>0) {
                             hunger -= meal;
@@ -293,21 +297,15 @@ public abstract class Animal extends Sprite implements Runnable {
         setPosition(b2body.getPosition().x, b2body.getPosition().y);
     }
 
-    private boolean passed(Vector2 pos){
+    private boolean passed(Vector2 pos, int margin){
         if(pos == null) {
             return true;
         }
-        if (speed.x > 0 && speed.y > 0) {
-            return getX() > pos.x && getY() > pos.y;
-        }
-        if (speed.x < 0 && speed.y < 0) {
-            return getX() < pos.x && getY() < pos.y;
-        }
-        if (speed.x > 0 && speed.y < 0) {
-            return getX() > pos.x && getY() < pos.y;
-        }
-        if (speed.x < 0 && speed.y > 0) {
-            return getX() < pos.x && getY() > pos.y;
+        if(getX() - margin< pos.x &&
+                getY() - margin < pos.y &&
+                getX() + getWidth() + margin > pos.x &&
+                getY() + getHeight() + margin > pos.y){
+            return true;
         }
         return false;
     }
@@ -318,7 +316,14 @@ public abstract class Animal extends Sprite implements Runnable {
         int posY = (int)currentPos.y;
         boolean moveX = true;
         int moveMax = 0;
-        int direction = 1;
+        int direction;
+        if(rand.nextInt(2)==0){
+            direction = 1;
+        }
+        else{
+            direction = -1;
+        }
+
         while(posX < (currentPos.x + FEED_RANGE)) {
             if(moveX) {
                 for(int i=0;i<moveMax;i++){
@@ -352,7 +357,7 @@ public abstract class Animal extends Sprite implements Runnable {
             if(i< GameScreen.MAP_SIZE && i> 0) {
                 for (Animal animal : WorldHandler.tempAnimalPos.get(i)) {
                     if(animal.getClass()== c) {
-                        if (animal.sex == Potamos.Sex.FEMALE && animal.currentState != State.DEAD) {
+                        if (animal.sex == Potamos.Sex.FEMALE && animal.currentState != Potamos.State.DEAD) {
                             if (calcDistance(b2body.getPosition().x, b2body.getPosition().y, animal.b2body.getPosition().x, animal.b2body.getPosition().y) < Potamos.PPM * COURT_RANGE) {
                                 femalePos = new Vector2(animal.b2body.getPosition().x, animal.b2body.getPosition().y);
                                 femaleFound = true;
@@ -386,33 +391,34 @@ public abstract class Animal extends Sprite implements Runnable {
     public void findState() {
         if(stateExecuted || WorldHandler.getInstance().stateTime > stateStartTime + STATE_EXECUTION_TIME) {
             if(hunger>50) {
-                currentState = State.SEEKING_FOOD;
+                currentState = Potamos.State.SEEKING_FOOD;
             }
             else {
                 if (!pregnant) {
                     int sum = IDLE_PERCENTAGE + WALKING_PERCENTAGE + SPEAK_PERCENTAGE + COURT_PERCENTAGE + FEED_PERCENTAGE;
                     int state = rand.nextInt(sum);
                     if (state < IDLE_PERCENTAGE) {
-                        currentState = State.IDLE;
+                        currentState = Potamos.State.IDLE;
                     } else if (state < IDLE_PERCENTAGE + WALKING_PERCENTAGE) {
-                        currentState = State.WALKING;
+                        currentState = Potamos.State.WALKING;
                     } else if (state < IDLE_PERCENTAGE + WALKING_PERCENTAGE + SPEAK_PERCENTAGE) {
-                        currentState = State.SPEAK;
+                        currentState = Potamos.State.SPEAK;
                     } else if (state < IDLE_PERCENTAGE + WALKING_PERCENTAGE + SPEAK_PERCENTAGE + COURT_PERCENTAGE){
-                        currentState = State.COURT;
+                        currentState = Potamos.State.COURT;
                     } else {
-                        currentState = State.SEEKING_FOOD;
+                        currentState = Potamos.State.SEEKING_FOOD;
                     }
                 } else {
-                    if (currentState != State.PREGNANT) {
+                    if (currentState != Potamos.State.PREGNANT) {
                         b2body.setLinearVelocity(0, 0);
                         conceiveTime = WorldHandler.getInstance().stateTime;
                     }
-                    currentState = State.PREGNANT;
+                    currentState = Potamos.State.PREGNANT;
                 }
             }
             stateExecuted = false;
             stateStartTime = WorldHandler.getInstance().stateTime;
+            nextStateLookup = rand.nextInt(5);
         }
 
 
@@ -466,36 +472,17 @@ public abstract class Animal extends Sprite implements Runnable {
     }
 
     public void die(){
-
         highlighted = false;
         deathTime = WorldHandler.getInstance().stateTime;
         GameScreen.getImultiplexer().removeProcessor(mouse);
         b2body.setType(BodyDef.BodyType.StaticBody);
+        b2body.getFixtureList().get(0).getFilterData().maskBits = 0; // TODO food in the future
         WorldHandler.animalsHighlighted.remove(this);
         WorldHandler.animals.remove(this);
         WorldHandler.deadAnimals.add(this);
-        threadStop();
-
+        currentState = Potamos.State.DEAD;
     }
 
-    @Override
-    public void run() {
-        stateExecuted = true;
-        while(!threadExit) {
-            try {
-                Thread.sleep(rand.nextInt(3)*1000);
-                findState();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        currentState = Animal.State.DEAD;
-        Gdx.app.log("LIFE THREAD","CUT");
-    }
-
-    public void threadStop() {
-        threadExit = true;
-    }
     public void dispose () {
 
     }

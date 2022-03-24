@@ -1,10 +1,8 @@
 package com.kitter.eufrat.tools;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.*;
 import com.kitter.eufrat.Potamos;
-import com.kitter.eufrat.Sprites.Animal;
 import com.kitter.eufrat.Sprites.Auroch;
 
 public class WorldContactListener implements ContactListener {
@@ -19,14 +17,16 @@ public class WorldContactListener implements ContactListener {
             case Potamos.AUROCH_BIT:
                 if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.MALE &&
                     ((Auroch)fixB.getUserData()).sex == Potamos.Sex.FEMALE ){
-                    if (((Auroch) fixB.getUserData()).currentState != Animal.State.PREGNANT){
+                    if (((Auroch) fixB.getUserData()).currentState != Potamos.State.PREGNANT){
                         ((Auroch) fixB.getUserData()).setPregnant();
+                        ((Auroch) fixA.getUserData()).currentState = Potamos.State.IDLE;
                     }
                 }
                 else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.FEMALE &&
                     ((Auroch)fixB.getUserData()).sex == Potamos.Sex.MALE ){
-                    if (((Auroch) fixA.getUserData()).currentState != Animal.State.PREGNANT){
+                    if (((Auroch) fixA.getUserData()).currentState != Potamos.State.PREGNANT){
                         ((Auroch) fixA.getUserData()).setPregnant();
+                        ((Auroch) fixB.getUserData()).currentState = Potamos.State.IDLE;
                     }
                 }
                 else if(((Auroch)fixA.getUserData()).sex == Potamos.Sex.MALE &&

@@ -111,11 +111,11 @@ public class WorldHandler {
                    animals.get(i).sex == Potamos.Sex.CHILD){
                     growUp((Auroch) animals.get(i));
                 }
-                if(animals.get(i).age + Potamos.AUROCH_LIFE_TIME < WorldHandler.getInstance().stateTime){
-                    Gdx.app.log("DEATH","AGE");
-                    animals.get(i).die();
-                    i++;
-                }
+//                if(animals.get(i).age + Potamos.AUROCH_LIFE_TIME < WorldHandler.getInstance().stateTime){
+//                    Gdx.app.log("DEATH","AGE");
+//                    animals.get(i).die();
+//                    i++;
+//                }
             }
             if(i < animals.size()) {
                     if (animals.get(i).hunger > 100f) {
@@ -205,15 +205,9 @@ public class WorldHandler {
         }
     }
 
-    public void setVisibilityMove(Vector3 pos){
-        //camPos = pos;
-    }
-
     public void addAuroch(float x, float y, Potamos.Sex gender, int generation){
         animals.add(new Auroch(x, y, gender));
         WorldHandler.animals.get(animals.size()-1).generation = generation;
-        Thread t =new Thread(WorldHandler.animals.get(animals.size()-1));
-        t.start();
     }
 
     public void setSeed(int seed){
