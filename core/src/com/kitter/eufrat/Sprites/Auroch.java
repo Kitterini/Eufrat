@@ -138,7 +138,11 @@ public class Auroch extends Animal {
         }
         return false;
     }
-
+    @Override
+    public void die() {
+        super.die();
+        b2body.getFixtureList().get(0).getFilterData().categoryBits = Potamos.DEAD_AUROCH_BIT;
+    }
     public void dispose () {
         super.dispose();
     }
