@@ -1,0 +1,26 @@
+ANIMAL_DECAY_TIME: 100
+TILE_MAX_CAPACITY: 100
+ANIMAL_MAX_CAPACITY: 600 # too much will result in lags
+MAIN_FONT: "Gothic.ttf"
+ADDITIONAL_FONT: "MECHANI_.ttf"
+SCREEN_MODE: "Fullscreen off" #or "Fullscreen on"
+DEBUG_MODE: "Debug off"  #or "Debug on"
+DEFAULT_MAP_SIZE: 100
+DEFAULT_SEED: 213
+LANGUAGE: "english" # choices: english, polski
+
+Auroch:
+  ADOLESCENCE_TIME: 200
+  LIFE_TIME: 800
+  MEAL_SIZE: 20
+  COURT_RANGE: 15
+  FEED_RANGE: 10
+  RUN_RANGE: 10
+
+Simbakubwa:
+  ADOLESCENCE_TIME: 200
+  LIFE_TIME: 2400
+  MEAL_SIZE: 50
+  COURT_RANGE: 25
+  FEED_RANGE: 15
+  RUN_RANGE: 10 # does nothing, simba never runs

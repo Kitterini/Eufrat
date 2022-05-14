@@ -10,5 +10,13 @@
   "calf": {
     "sizeX": 32,
     "sizeY": 52
+  },
+  "simbakubwa_male":{
+    "sizeX": 40,
+    "sizeY": 68
+  },
+  "simbakubwa_female":{
+    "sizeX": 40,
+    "sizeY": 68
   }
 }

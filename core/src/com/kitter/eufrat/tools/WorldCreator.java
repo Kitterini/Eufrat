@@ -2,6 +2,8 @@ package com.kitter.eufrat.tools;
 
 import com.badlogic.gdx.math.Vector2;
 import com.kitter.eufrat.Potamos;
+import com.kitter.eufrat.Sprites.Auroch;
+import com.kitter.eufrat.Sprites.Simbakubwa;
 import com.kitter.eufrat.Sprites.Tile;
 import com.kitter.eufrat.screens.GameScreen;
 
@@ -208,6 +210,9 @@ public class WorldCreator {
     public static void populateAnimals(Random rand){
         int x = 0;
         int y = 0;
+        Potamos.Sex sexes[] = new Potamos.Sex[2];
+        sexes[0]= Potamos.Sex.MALE;
+        sexes[1]= Potamos.Sex.FEMALE;
         for(int i = 0; i < GameScreen.ANIMAL_AMOUNT; i++) {
             x = rand.nextInt(GameScreen.MAP_SIZE);
             y = rand.nextInt(GameScreen.MAP_SIZE);
@@ -215,10 +220,16 @@ public class WorldCreator {
                 x = rand.nextInt(GameScreen.MAP_SIZE);
                 y = rand.nextInt(GameScreen.MAP_SIZE);
             }
-            Potamos.Sex sexes[] = new Potamos.Sex[2];
-            sexes[0]= Potamos.Sex.MALE;
-            sexes[1]= Potamos.Sex.FEMALE;
-            WorldHandler.getInstance().addAuroch(x * Potamos.PPM, y* Potamos.PPM, sexes[rand.nextInt(2)],0);
+            WorldHandler.getInstance().addAnimal(Auroch.class,x * Potamos.PPM, y* Potamos.PPM, sexes[rand.nextInt(2)],0);
+            if(i%10==0){
+                x = rand.nextInt(GameScreen.MAP_SIZE);
+                y = rand.nextInt(GameScreen.MAP_SIZE);
+                while(WorldHandler.worldTiles[x][y].type.equals("waters") || WorldHandler.worldTiles[x][y].type.equals("border")){
+                    x = rand.nextInt(GameScreen.MAP_SIZE);
+                    y = rand.nextInt(GameScreen.MAP_SIZE);
+                }
+                WorldHandler.getInstance().addAnimal(Simbakubwa.class,x * Potamos.PPM, y* Potamos.PPM, sexes[rand.nextInt(2)],0);
+            }
         }
     }
 
@@ -375,9 +386,11 @@ public class WorldCreator {
     public static void defineBoundaries(){
         for(int i = 0; i < GameScreen.MAP_SIZE; i++) {
             for(int j = 0; j < GameScreen.MAP_SIZE; j++) {
-                if(WorldHandler.worldTiles[i][j].type.equals("border") ||
-                    WorldHandler.worldTiles[i][j].type.equals("waters")){
-                    WorldHandler.worldTiles[i][j].defineTile();
+                if(WorldHandler.worldTiles[i][j].type.equals("border")){
+                    WorldHandler.worldTiles[i][j].defineTile(Potamos.TILE_BIT);
+                }
+                if(WorldHandler.worldTiles[i][j].type.equals("waters")){
+                    WorldHandler.worldTiles[i][j].defineTile(Potamos.WATER_BIT);
                 }
             }
         }

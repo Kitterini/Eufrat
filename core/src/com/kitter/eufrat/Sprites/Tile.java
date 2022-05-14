@@ -23,7 +23,7 @@ public class Tile extends Sprite {
     TextureRegion reg;
     boolean flipped;
     public Body b2body;
-    public int capacity;
+    public float capacity;
     public int chosen;
     public Tile(String type, Vector2 position) {
         this.chosen = (int)(Math.random() * ((TileAnims.getInstance().animsMap.get(type).animList.size() )));
@@ -33,7 +33,7 @@ public class Tile extends Sprite {
         this.position = position;
         this.size = new Vector2(Potamos.PPM * TileAnims.getInstance().animsMap.get(type).sizeX,
                                 Potamos.PPM * TileAnims.getInstance().animsMap.get(type).sizeY);
-        capacity=100;
+        capacity=Potamos.TILE_MAX_CAPACITY;
         //setSize(size.x, size.y);
         setBounds(position.x, position.y,size.x, size.y);
         ///setPosition(position.x, position.y);
@@ -58,38 +58,53 @@ public class Tile extends Sprite {
         flipped = !flipped;
     }
 
-    public int decreaseCapacity(){
-        if(capacity>Potamos.AUROCH_MEAL_SIZE){
-            capacity-=Potamos.AUROCH_MEAL_SIZE;
+    public int decreaseCapacity(int mealsize){
+        if(capacity>mealsize){
+            capacity-= mealsize;
             // shitty math to extract which depletion is for which texture
             int subindex=TileAnims.getInstance().animsMap.get(type).depletionList.size()/TileAnims.getInstance().animsMap.get(type).animList.size();
             int index = (int)(capacity/100f*subindex+subindex*chosen);
             this.anim = TileAnims.getInstance().animsMap.get(type).depletionList.get(index);
-            return Potamos.AUROCH_MEAL_SIZE;
+            return mealsize;
         }
         else if(capacity>0){
-            int foodleft = capacity;
-            capacity-=capacity;
+            float foodleft = capacity;
+            capacity=0;
             // same here
             int subindex = TileAnims.getInstance().animsMap.get(type).depletionList.size()/TileAnims.getInstance().animsMap.get(type).animList.size();
             int index = (int)(capacity/100f*subindex+subindex*chosen);
             this.anim = TileAnims.getInstance().animsMap.get(type).depletionList.get(index);
-            return foodleft;
+            return (int)foodleft;
         }
         else {
-            Gdx.app.log("ERROR", "NO FOOD");
             return 0;
         }
     }
-    public void defineTile(){
+    public void increaseCapacity(){
+        if(capacity<100) {
+
+            // shitty math to extract which depletion is for which texture
+            int subindex = TileAnims.getInstance().animsMap.get(type).depletionList.size() / TileAnims.getInstance().animsMap.get(type).animList.size();
+            int index = (int) (capacity / 100f * subindex + subindex * chosen);
+            if(capacity>100){
+                this.anim = TileAnims.getInstance().animsMap.get(type).animList.get(chosen);
+            }
+            else {
+                this.anim = TileAnims.getInstance().animsMap.get(type).depletionList.get(index);
+            }
+            capacity += 0.2;
+        }
+    }
+
+    public void defineTile(short BIT){
         //body section
         BodyDef bdef = new BodyDef();
         bdef.position.set(new Vector2(getX(),getY()));
         bdef.type = BodyDef.BodyType.StaticBody;
         b2body = world.createBody(bdef);
         FixtureDef fdef = new FixtureDef();
-        fdef.filter.categoryBits = Potamos.TILE_BIT;
-        fdef.filter.maskBits = Potamos.AUROCH_BIT;
+        fdef.filter.categoryBits = BIT;
+        fdef.filter.maskBits = Potamos.AUROCH_BIT | Potamos.SIMBA_BIT;
 
         PolygonShape shape = new PolygonShape();
         Vector2[] vertices = new Vector2[4];

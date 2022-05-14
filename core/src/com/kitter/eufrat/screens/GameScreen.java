@@ -1,9 +1,6 @@
 package com.kitter.eufrat.screens;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.Sprites.Animal;
+import com.kitter.eufrat.Sprites.Tile;
 import com.kitter.eufrat.tools.*;
 import com.kitter.eufrat.tools.WorldHandler;
 
@@ -42,7 +40,7 @@ public class GameScreen implements Screen {
     private GestureDetector touch;
     private static InputMultiplexer imultiplexer;
     private float sortAnimalsStateTime;
-
+    private float handleTilesStateTime;
     // how about the stage
     public GameScreen(Potamos game, int seed, int size) {
         MAP_SIZE = size;
@@ -95,6 +93,7 @@ public class GameScreen implements Screen {
         WorldHandler.getInstance().setVisibility(gameCam.position);
         hud = new Hud(game);
         sortAnimalsStateTime=0;
+        handleTilesStateTime =0;
     }
 
     @Override
@@ -121,7 +120,10 @@ public class GameScreen implements Screen {
             sortAnimalsStateTime = WorldHandler.getInstance().stateTime;
             WorldHandler.getInstance().setVisibility(gameCam.position);
         }
-
+        if(WorldHandler.getInstance().stateTime > handleTilesStateTime + 20){
+            WorldHandler.getInstance().handleTiles();
+            handleTilesStateTime = WorldHandler.getInstance().stateTime;
+        }
         stepWorld(delta);
         Gdx.gl.glClearColor(0,0,0,0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -132,8 +134,9 @@ public class GameScreen implements Screen {
         // set batch to draw what the Hud camera sees
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
-        if(Potamos.debug_mode.equals("Debug on")) {
+        if(Potamos.debug_mode.equals( LangPack.data.get("DEBUG_ON"))) {
             b2dr.render(world, gameCam.combined);
+            Gdx.app.setLogLevel(Application.LOG_DEBUG);
         }
 
     }
@@ -202,15 +205,15 @@ public class GameScreen implements Screen {
 
     }
     void setupFullScreen(String mode){
-        if(mode.equals("Fullscreen on")) {
+        if(mode.equals(LangPack.data.get("FULLSCREEN_ON"))) {
             Gdx.graphics.setWindowedMode(1280, 720);
-            Potamos.screen_mode = "Fullscreen off";
+            Potamos.screen_mode = LangPack.data.get("FULLSCREEN_OFF").toString();
             Gdx.input.setInputProcessor(imultiplexer);
         }
-        else if(mode.equals("Fullscreen off")){
+        else if(mode.equals(LangPack.data.get("FULLSCREEN_OFF"))){
             // set resolution to HD ready (1280 x 720) and set full-screen to true
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-            Potamos.screen_mode = "Fullscreen on";
+            Potamos.screen_mode = LangPack.data.get("FULLSCREEN_ON").toString();
             Gdx.input.setInputProcessor(imultiplexer);
         }
     }

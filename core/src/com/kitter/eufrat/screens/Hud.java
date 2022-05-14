@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kitter.eufrat.Potamos;
+import com.kitter.eufrat.tools.LangPack;
 import com.kitter.eufrat.tools.WorldHandler;
 
 
@@ -27,6 +28,7 @@ public class Hud implements Disposable {
 
     Label FPSLabel;
     Label AurochLabel;
+    Label TimerLabel;
     public BitmapFont hudfont;
     public Hud(Potamos game) {
 
@@ -43,12 +45,12 @@ public class Hud implements Disposable {
         table.add( AurochLabel).padRight(20).colspan(2);
         FPSLabel = new Label("", hudstyle);
         table.add(FPSLabel).padRight(20);
-        table.row();
+
         Table highlightTable = new Table();
         ScrollPane scrollPane = new ScrollPane(highlightTable);
-        Label testLabel = new Label("TEST", hudstyle);
-        highlightTable.add(testLabel);
-        table.add(testLabel).colspan(4).right();
+        TimerLabel = new Label("", hudstyle);
+        highlightTable.add(TimerLabel);
+        table.add(TimerLabel).colspan(4).right();
         //table.debug();
 
         stage.addActor(table);
@@ -56,8 +58,9 @@ public class Hud implements Disposable {
     }
 
     public void update(float dt) {
-        FPSLabel.setText("FPS=" + Gdx.graphics.getFramesPerSecond());
-        AurochLabel.setText("Aurochs: " + WorldHandler.animals.size());
+        FPSLabel.setText( LangPack.data.get("FPS") + ": " + Gdx.graphics.getFramesPerSecond());
+        AurochLabel.setText( LangPack.data.get("ANIMALS") + ": " + WorldHandler.animals.size());
+        TimerLabel.setText( LangPack.data.get("TIME") + ": " + String.format("%.1f",WorldHandler.getInstance().stateTime));
     }
 
     public static BitmapFont loadCustomFont(String fileName, float size){

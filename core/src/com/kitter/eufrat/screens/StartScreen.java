@@ -22,6 +22,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import com.kitter.eufrat.Potamos;
+import com.kitter.eufrat.tools.Config;
+import com.kitter.eufrat.tools.LangPack;
+
+import java.util.Locale;
 
 
 public class StartScreen implements Screen {
@@ -102,43 +106,97 @@ public class StartScreen implements Screen {
             @Override public void clicked(InputEvent event, float x, float y) {
                 tbutton.getLabel().setColor(0,1,0,1);
                 String name = tbutton.getText().toString();
-                switch (name) {
-                    case "New Game":
-                        dispose();
-                        setupGameMenu();
-                        break;
-                    case "Start":
-                        dispose();
-                        setupLoading();
-                        break;
-                    case "Settings":
-                        //no new screen should be made, but rather this existing one reinitialized
-                        dispose();
-                        setupSettingsMenu();
-                        break;
-                    case "Fullscreen on":
-                    case "Fullscreen off":
-                        setupFullScreen(name);
-                        setupSettingsMenu();
-                        break;
-                    case "Debug off":
-                        Potamos.debug_mode = "Debug on";
-                        dispose();
-                        setupSettingsMenu();
-                        break;
-                    case "Debug on":
-                        Potamos.debug_mode = "Debug off";
-                        dispose();
-                        setupSettingsMenu();
-                        break;
-                    case "Exit":
-                        Gdx.app.exit();
-                        dispose();
-                        System.exit(0);
-                    case "Back":
-                        dispose();
-                        setupStartMenu();
+                if(name.equals(LangPack.data.get("NEW_GAME"))){
+                    dispose();
+                    setupGameMenu();
+                } else if (name.equals(LangPack.data.get("START"))){
+                    dispose();
+                    setupLoading();
+                } else if (name.equals(LangPack.data.get("LANGUAGE") + ": " + Potamos.lang)){
+                    if(Potamos.lang.equals("polski")){
+                        Potamos.lang = "english";
+                        String langFile = "langpack_" + Potamos.lang + ".yaml";
+                        LangPack.reinit(langFile);
+                    } else if(Potamos.lang.equals("english")){
+                        Potamos.lang = "polski";
+                        String langFile = "langpack_" + Potamos.lang + ".yaml";
+                        LangPack.reinit(langFile);
+                    }
+                    if(Potamos.screen_mode.equals("Fullscreen on")) {
+                        Potamos.screen_mode = LangPack.data.get("FULLSCREEN_ON").toString();
+                    }
+                    else {
+                        Potamos.screen_mode = LangPack.data.get("FULLSCREEN_OFF").toString();
+                    }
+                    if(Potamos.debug_mode.equals("Debug on")) {
+                        Potamos.debug_mode = LangPack.data.get("DEBUG_ON").toString();
+                    }
+                    else {
+                        Potamos.debug_mode = LangPack.data.get("DEBUG_OFF").toString();
+                    }
+                    dispose();
+                    setupSettingsMenu();
+                } else if (name.equals(LangPack.data.get("SETTINGS"))){
+                    //no new screen should be made, but rather this existing one reinitialized
+                    dispose();
+                    setupSettingsMenu();
+                } else if (name.equals(LangPack.data.get("FULLSCREEN_ON")) || name.equals(LangPack.data.get("FULLSCREEN_OFF")) ){
+                    setupFullScreen(name);
+                    setupSettingsMenu();
+                } else if (name.equals(LangPack.data.get("DEBUG_OFF"))){
+                    Potamos.debug_mode = LangPack.data.get("DEBUG_ON").toString();
+                    dispose();
+                    setupSettingsMenu();
+                } else if (name.equals(LangPack.data.get("DEBUG_ON"))){
+                    Potamos.debug_mode = LangPack.data.get("DEBUG_OFF").toString();
+                    dispose();
+                    setupSettingsMenu();
+                }  else if (name.equals(LangPack.data.get("EXIT"))){
+                    Gdx.app.exit();
+                    dispose();
+                    System.exit(0);
+                } else if (name.equals(LangPack.data.get("BACK"))){
+                    dispose();
+                    setupStartMenu();
                 }
+//                switch (name) { // zamienic na ify
+//                    case "New Game":
+//                        dispose();
+//                        setupGameMenu();
+//                        break;
+//                    case "Start":
+//                        dispose();
+//                        setupLoading();
+//                        break;
+//                    case "Settings":
+//                        //no new screen should be made, but rather this existing one reinitialized
+//                        dispose();
+//                        setupSettingsMenu();
+//                        break;
+//                    case "Fullscreen on":
+//                    case "Fullscreen off":
+//                        setupFullScreen(name);
+//                        setupSettingsMenu();
+//                        break;
+//                    case "Debug off":
+//                        Potamos.debug_mode = "Debug on";
+//                        dispose();
+//                        setupSettingsMenu();
+//                        break;
+//                    case "Debug on":
+//                        Potamos.debug_mode = "Debug off";
+//                        dispose();
+//                        setupSettingsMenu();
+//                        break;
+//                    case "Exit":
+//                        Gdx.app.exit();
+//                        dispose();
+//                        System.exit(0);
+//                        break;
+//                    case "Back":
+//                        dispose();
+//                        setupStartMenu();
+//                }
             }
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -160,18 +218,18 @@ public class StartScreen implements Screen {
         });
     }
     void setupFullScreen(String mode){
-        if(mode.equals("Fullscreen on")) {
+        if(mode.equals(LangPack.data.get("FULLSCREEN_ON"))) {
             Gdx.graphics.setWindowedMode(1280, 720);
-            Potamos.screen_mode = "Fullscreen off";
+            Potamos.screen_mode = LangPack.data.get("FULLSCREEN_OFF").toString();
             dispose();
             viewport = new FitViewport(1280, 720, new OrthographicCamera());
             stage = new Stage(viewport, game.batch);
             Gdx.input.setInputProcessor(stage);
         }
-        else if(mode.equals("Fullscreen off")){
+        else if(mode.equals( LangPack.data.get("FULLSCREEN_OFF"))){
             // set resolution to HD ready (1280 x 720) and set full-screen to true
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-            Potamos.screen_mode = "Fullscreen on";
+            Potamos.screen_mode =  LangPack.data.get("FULLSCREEN_ON").toString();
             dispose();
             viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height,new OrthographicCamera());
             stage = new Stage(viewport, game.batch);
@@ -191,9 +249,9 @@ public class StartScreen implements Screen {
         String[] gameName = Potamos.class.getName().split("\\.");
         Label titleLabel = new Label(gameName[gameName.length-1], fontStyle);
 
-        TextButton playButton = new TextButton("New Game", btnStyle);
-        TextButton settingsButton = new TextButton("Settings", btnStyle);
-        TextButton exitButton = new TextButton("Exit", btnStyle);
+        TextButton playButton = new TextButton(LangPack.data.get("NEW_GAME").toString(), btnStyle);
+        TextButton settingsButton = new TextButton(LangPack.data.get("SETTINGS").toString(), btnStyle);
+        TextButton exitButton = new TextButton(LangPack.data.get("EXIT").toString(), btnStyle);
 
         setupButton(playButton);
         setupButton(settingsButton);
@@ -218,11 +276,12 @@ public class StartScreen implements Screen {
         Table table = new Table();
         table.center();
         table.setFillParent(true);
-        Label titleLabel = new Label("SETTINGS", font);
+        Label titleLabel = new Label(LangPack.data.get("SETTINGS").toString().toUpperCase(Locale.ROOT), font);
         // Label resLabel = new Label("Resolution", font);
-        TextButton backButton = new TextButton("Back", btnStyle);
+        TextButton backButton = new TextButton(LangPack.data.get("BACK").toString(), btnStyle);
         setupButton(backButton);
-
+        TextButton langButton = new TextButton(LangPack.data.get("LANGUAGE").toString() + ": " + Potamos.lang, btnStyle);
+        setupButton(langButton);
         TextButton fullButton = new TextButton(Potamos.screen_mode, btnStyle);
         setupButton(fullButton);
         TextButton debugButton = new TextButton(Potamos.debug_mode, btnStyle);
@@ -241,6 +300,8 @@ public class StartScreen implements Screen {
         //table.add(resLabel);
         //table.add(selectBox);
         //table.row();
+        table.add(langButton).colspan(2).expandX().padTop(20f);
+        table.row();
         table.add(fullButton).colspan(2).expandX().padTop(20f);
         table.row();
         table.add(debugButton).colspan(2).expandX().padTop(20f);
@@ -265,17 +326,17 @@ public class StartScreen implements Screen {
         ScrollPane scrollPane = new ScrollPane(innerTable);
         outerTable.center();
         outerTable.setFillParent(true);
-        Label titleLabel = new Label("GAME OPTIONS", font);
-        TextButton playButton = new TextButton("Start", btnStyle);
+        Label titleLabel = new Label(LangPack.data.get("GAME_OPTIONS").toString(), font);
+        TextButton playButton = new TextButton(LangPack.data.get("START").toString(), btnStyle);
         setupButton(playButton);
-        Label seedLabel = new Label("Seed", font);
+        Label seedLabel = new Label(LangPack.data.get("SEED").toString(), font);
         seed = new TextField(Potamos.default_seed, uiSkin);
         seed.setMaxLength(8);
-        Label sizeLabel = new Label("Size", font);
+        Label sizeLabel = new Label(LangPack.data.get("SIZE").toString(), font);
         size = new TextField(Potamos.default_map_size, uiSkin);
         size.setMaxLength(3);
         seed.setSize(1000,100);
-        TextButton backButton = new TextButton("Back", btnStyle);
+        TextButton backButton = new TextButton(LangPack.data.get("BACK").toString(), btnStyle);
         setupButton(backButton);
         outerTable.add(titleLabel).colspan(2).expandX();
         outerTable.row();
@@ -303,7 +364,7 @@ public class StartScreen implements Screen {
         Table table = new Table();
         table.center();
         table.setFillParent(true);
-        Label loadingLabel = new Label("Loading...", font);
+        Label loadingLabel = new Label(LangPack.data.get("LOADING").toString() + "...", font);
         table.add(loadingLabel).expandX();
 
         stage.addActor(table);
