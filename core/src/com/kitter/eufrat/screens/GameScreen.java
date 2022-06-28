@@ -130,10 +130,12 @@ public class GameScreen implements Screen {
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         WorldHandler.getInstance().draw(game.batch, delta);
+
         game.batch.end();
         // set batch to draw what the Hud camera sees
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+
         if(Potamos.debug_mode.equals( LangPack.data.get("DEBUG_ON"))) {
             b2dr.render(world, gameCam.combined);
             Gdx.app.setLogLevel(Application.LOG_DEBUG);

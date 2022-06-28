@@ -30,9 +30,9 @@
       "depletion": ["empty","20proc","40proc","60proc","80proc"]
     },
     "ferforest": {
-      "scaleX": 1.5,
-      "scaleY": 1.5,
-      "depletion": ["20proc","40proc","60proc","80proc"]
+      "scaleX": 2
+      "scaleY": 2,
+      "depletion": ["empty","20proc","40proc","60proc","80proc"]
     },
     "border": {
       "scaleX": 1,

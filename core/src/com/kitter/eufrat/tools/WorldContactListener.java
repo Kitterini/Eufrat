@@ -56,11 +56,25 @@ public class WorldContactListener implements ContactListener {
             case Potamos.SIMBA_BIT:
                 if(((Simbakubwa)fixA.getUserData()).sex == Potamos.Sex.MALE &&
                         ((Simbakubwa)fixB.getUserData()).sex == Potamos.Sex.FEMALE ){
-                    Gdx.app.log("CONTACT", "SIMBA TRIED TO COPULATE! ");
+                    if (((Simbakubwa) fixB.getUserData()).currentState != Potamos.State.SLEEP &&
+                        ((Simbakubwa) fixB.getUserData()).currentState != Potamos.State.PREGNANT &&
+                        ((Simbakubwa) fixB.getUserData()).conceiveTime + 100 < WorldHandler.getInstance().stateTime &&
+                        WorldHandler.animals.size()<Potamos.ANIMAL_MAX_CAPACITY) {
+                        Gdx.app.log("CONTACT", "SIMBA ACTUALLY COPULATED! ");
+                        ((Simbakubwa) fixB.getUserData()).setPregnant();
+                        ((Simbakubwa) fixB.getUserData()).currentState = Potamos.State.IDLE;
+                    }
                 }
                 else if(((Simbakubwa)fixA.getUserData()).sex == Potamos.Sex.FEMALE &&
                         ((Simbakubwa)fixB.getUserData()).sex == Potamos.Sex.MALE ){
-                    Gdx.app.log("CONTACT", "SIMBA TRIED TO COPULATE! ");
+                    if (((Simbakubwa) fixA.getUserData()).currentState != Potamos.State.SLEEP &&
+                        ((Simbakubwa) fixA.getUserData()).currentState != Potamos.State.PREGNANT &&
+                        ((Simbakubwa) fixA.getUserData()).conceiveTime + 100 < WorldHandler.getInstance().stateTime &&
+                        WorldHandler.animals.size()<Potamos.ANIMAL_MAX_CAPACITY) {
+                        Gdx.app.log("CONTACT", "SIMBA ACTUALLY COPULATED! ");
+                        ((Simbakubwa) fixA.getUserData()).setPregnant();
+                        ((Simbakubwa) fixA.getUserData()).currentState = Potamos.State.IDLE;
+                    }
                 }
                 else if(((Simbakubwa)fixA.getUserData()).sex == Potamos.Sex.MALE &&
                         ((Simbakubwa)fixB.getUserData()).sex == Potamos.Sex.MALE) {
@@ -82,7 +96,6 @@ public class WorldContactListener implements ContactListener {
                 Gdx.app.log("CONTACT", "SIMBA ON WATER");
                 break;
             case Potamos.AUROCH_BIT | Potamos.SIMBA_BIT:
-                Gdx.app.log("CONTACT", "SIMBA MOOER");
                 if(fixA.getFilterData().categoryBits == Potamos.SIMBA_BIT){
                   if (((Simbakubwa) fixA.getUserData()).currentState != Potamos.State.SLEEP){
                         ((Simbakubwa) fixA.getUserData()).timeToEat = true;
@@ -93,6 +106,7 @@ public class WorldContactListener implements ContactListener {
                     if(((Simbakubwa) fixB.getUserData()).currentState != Potamos.State.SLEEP) {
                         ((Auroch) fixA.getUserData()).vanquished = true;
                         ((Simbakubwa)fixB.getUserData()).timeToEat = true;
+                        ((Simbakubwa)fixB.getUserData()).currentState = Potamos.State.EATING;
                     }
                 }
                 break;

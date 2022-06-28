@@ -6,19 +6,24 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kitter.eufrat.Potamos;
 import com.kitter.eufrat.tools.LangPack;
+import com.kitter.eufrat.tools.TextureUtils;
 import com.kitter.eufrat.tools.WorldHandler;
 
 
@@ -30,13 +35,16 @@ public class Hud implements Disposable {
     Label AurochLabel;
     Label TimerLabel;
     public BitmapFont hudfont;
+    Image backg;
     public Hud(Potamos game) {
 
-        viewport = new FillViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, new OrthographicCamera());
+        viewport = new ExtendViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         stage = new Stage(viewport, game.batch);
-
+        backg = new Image(TextureUtils.getInstance().utilsMap.get("highlight"));
+        backg.setPosition(0,0);
+        backg.setSize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+        stage.addActor(backg);
         BitmapFont localfont = loadCustomFont(Potamos.font,1);
-
         Label.LabelStyle hudstyle = new Label.LabelStyle(localfont, Color.WHITE);
         Table table = new Table();
         table.top();
@@ -55,9 +63,10 @@ public class Hud implements Disposable {
 
         stage.addActor(table);
         hudfont = loadCustomFont(Potamos.font,0.5f);
-    }
 
+    }
     public void update(float dt) {
+
         FPSLabel.setText( LangPack.data.get("FPS") + ": " + Gdx.graphics.getFramesPerSecond());
         AurochLabel.setText( LangPack.data.get("ANIMALS") + ": " + WorldHandler.animals.size());
         TimerLabel.setText( LangPack.data.get("TIME") + ": " + String.format("%.1f",WorldHandler.getInstance().stateTime));

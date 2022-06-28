@@ -62,6 +62,7 @@ public class Potamos extends Game {
 			Gdx.graphics.setWindowedMode(1280, 720);
 		}
 		batch = new SpriteBatch();
+
 		setScreen(new StartScreen(this));
 	}
 
@@ -73,8 +74,8 @@ public class Potamos extends Game {
 	@Override
 	public void dispose () {
 		super.dispose();
-		manager.unload("`audio/sounds/mooo.mp3");
-		manager.unload("audio/sounds/mooo2.mp3");
+		manager.unload("`audio/sounds/moooo.mp3");
+		manager.unload("audio/sounds/moooo2.mp3");
 		manager.unload("audio/sounds/miau.mp3");
 		manager.unload("audio/sounds/miau2.mp3");
 		manager.unload("audio/sounds/nom-nom-nom.mp3");

@@ -22,6 +22,7 @@ public class AnimalAnims {
         HashMap<String, String[]> additional_behaviours = new HashMap<>();
         additional_behaviours.put("simbakubwa_male", new String[]{"swim","sleep"});
         additional_behaviours.put("simbakubwa_female",new String[]{"swim","sleep"});
+        additional_behaviours.put("pupper",new String[]{"swim","sleep"}); // kurwa do zmiany
 
         JSONParser p = new JSONParser();
         JSONObject animalTypes = new JSONObject();

@@ -18,5 +18,9 @@
   "simbakubwa_female":{
     "sizeX": 40,
     "sizeY": 68
+  },
+  "pupper":{
+    "sizeX": 32,
+    "sizeY": 52
   }
 }

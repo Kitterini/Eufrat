@@ -31,10 +31,9 @@ public class Simbakubwa extends Animal{
         IDLE_PERCENTAGE = 10;
         WALKING_PERCENTAGE = 35;
         SPEAK_PERCENTAGE = 10;
-        COURT_PERCENTAGE = 25;
+        COURT_PERCENTAGE = 125;
         FEED_PERCENTAGE = 20;
         RUN_PERCENTAGE = 0;
-
 
         if(sex == Potamos.Sex.FEMALE) {
             idle = AnimalAnims.getInstance().animsMap.get("simbakubwa_female_idle").animList.get(0);
@@ -216,7 +215,7 @@ public class Simbakubwa extends Animal{
     @Override
      protected void findState() {
         super.findState();
-        if(hunger<0){
+        if(hunger<0 && currentState!= Potamos.State.EATING){
             currentState = Potamos.State.SLEEP;
         }
     }

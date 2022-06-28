@@ -158,8 +158,6 @@ public class WorldHandler {
                 WorldHandler.getInstance().addAnimal(adef.type, adef.position.x, adef.position.y, adef.sex, adef.generation);
         }
         if(!animalsToDespawn.isEmpty()){
-            Gdx.app.log("DECAY", "despawning");
-            Gdx.app.log("DECAY", String.valueOf(animalsToDespawn.size()));
             Animal a = animalsToDespawn.poll();
             animalRemove(a);
         }
